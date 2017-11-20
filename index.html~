@@ -2,8 +2,8 @@
 <html>
   <head>
     <title>Game</title>
-    <script src='js/enchant.js'></script>
-    <script src='js/main.js'></script>
+    <script src='enchant.js'></script>
+    <script src='main.js'></script>
   </head>
 
   <body>
