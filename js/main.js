@@ -1,3 +1,7 @@
+/*
+  coding:utf-8
+*/
+
 enchant();
 
 var gameFlag = 0;
@@ -5,32 +9,23 @@ var gameFlag = 0;
 window.onload = function(){
     var game = new Game(640, 480);
     game.preload('start.png','title.png');
-    var mainScene = new Scene();
     
     game.onload = function(){
-	var title = makeTitle(game, mainScene);	
-	//mainScene definition
-	mainScene.backgroundColor = "#FFFFFF";
-	var foo = new Label("foo!!");
-	mainScene.addChild(foo);
-	
+	var title = makeTitle(game);	
 	game.rootScene.addChild(title);
     }
 
     game.addEventListener('enterframe', function(){
 	//frame sequence
-	if(gameFlag == 1){
-	    game.replaceScene(mainScene);
-	    gameFlag = 2;
-	}
-	
     });
 
     game.start();
 }
 
-var makeTitle = function(game, mainScene){
+function makeTitle(game)
+{
     //title definition
+    // get assets image and make title parts
     var title = new Scene();
     var titleLabel = new Sprite(277,24);
     titleLabel.image = game.assets['title.png'];
@@ -40,11 +35,26 @@ var makeTitle = function(game, mainScene){
     button.image = game.assets['start.png'];
     button.x = game.width/2-button.width/2;
     button.y = game.height-200;
+
+    // button clicked -> game start
     button.addEventListener('touchstart', function(){
-        gameFlag = 1;
+	var mainScene = makeMain(game);
+	game.replaceScene(mainScene);
     });
+    
     title.addChild(titleLabel);
     title.addChild(button);
 
     return title;
-};
+}
+
+function makeMain(game)
+{
+    //mainScene definition
+    var mainScene = new Scene();
+    mainScene.backgroundColor = "#FFFFFF";
+    var foo = new Label("foo!!");
+    mainScene.addChild(foo);
+
+    return mainScene;
+}
