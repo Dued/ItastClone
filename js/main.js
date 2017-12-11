@@ -2,25 +2,39 @@
   coding:utf-8
 */
 
-enchant();
+//enchant();
 
-var gameFlag = 0;
+var state = {
+  INIT:0,
+  DICE:1,
+  GAME:2,
+  END:3
+};
+
+var gameFlag = state.INIT;
 
 window.onload = function(){
-    var game = new Game(640, 480);
+    var game = new Game(1024, 768);
     game.preload('start.png','title.png');
-    
+
     game.onload = function(){
-	var title = makeTitle(game);	
-	game.rootScene.addChild(title);
-    }
+	     var title = makeTitle(game);
+	     game.rootScene.addChild(title);
+    };
 
     game.addEventListener('enterframe', function(){
-	//frame sequence
+	  //frame sequence
+    if(gameFlag == state.DICE){
+
+    }else if(gameFlag == state.GAME){
+
+    }else if(gameFlag == state.END){
+
+    }
     });
 
     game.start();
-}
+};
 
 function makeTitle(game)
 {
@@ -38,10 +52,11 @@ function makeTitle(game)
 
     // button clicked -> game start
     button.addEventListener('touchstart', function(){
-	var mainScene = makeMain(game);
-	game.replaceScene(mainScene);
+	     var mainScene = makeMain(game);
+	     game.replaceScene(mainScene);
+       gameFlag = state.DICE;
     });
-    
+
     title.addChild(titleLabel);
     title.addChild(button);
 
