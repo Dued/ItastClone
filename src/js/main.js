@@ -2,9 +2,9 @@
   coding:utf-8
 */
 
-enchant();
+import 'enchant.js'
 //import encha from './modules/encha_classes';
-var Grid = require('./modules/encha_classes')
+import Grid from './modules/encha_classes.js'
 
 var state = {
   INIT:0,
@@ -16,7 +16,7 @@ var state = {
 var gameFlag = state.INIT;
 
 window.onload = function(){
-    var game = new Game(1024, 768);
+    var game = new enchant.Core(1024, 768);
     game.preload('start.png','title.png');
 
     game.onload = function(){
@@ -42,12 +42,12 @@ function makeTitle(game)
 {
     //title definition
     // get assets image and make title parts
-    var title = new Scene();
-    var titleLabel = new Sprite(277,24);
+    var title = new enchant.Scene();
+    var titleLabel = new enchant.Sprite(277,24);
     titleLabel.image = game.assets['title.png'];
     titleLabel.x = game.width/2-titleLabel.width/2;
     titleLabel.y = game.height/4;
-    var button = new Sprite(140, 65);
+    var button = new enchant.Sprite(140, 65);
     button.image = game.assets['start.png'];
     button.x = game.width/2-button.width/2;
     button.y = game.height-200;
@@ -68,11 +68,11 @@ function makeTitle(game)
 function makeMain(game)
 {
     //mainScene definition
-    var mainScene = new Scene();
+    var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
-    var foo = new Label("foo!!");
+    var foo = new enchant.Label("foo!!");
     mainScene.addChild(foo);
-    var test = new Grid(300,400);
+    var test = new Grid(30,40);
     mainScene.addChild(test);
 
     return mainScene;

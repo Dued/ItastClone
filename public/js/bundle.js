@@ -60,98 +60,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-  coding:utf-8
-*/
-
-//import $ from './enchant';
-var enchant = __webpack_require__(1);
-enchant.enchant();
-//import encha from './modules/encha_classes';
-var Grid = __webpack_require__(2);
-
-var state = {
-  INIT:0,
-  DICE:1,
-  GAME:2,
-  END:3
-};
-
-var gameFlag = state.INIT;
-
-window.onload = function(){
-    var game = new Game(1024, 768);
-    game.preload('start.png','title.png');
-
-    game.onload = function(){
-	     var title = makeTitle(game);
-	     game.rootScene.addChild(title);
-    };
-
-    game.addEventListener('enterframe', function(){
-	  //frame sequence
-    if(gameFlag == state.DICE){
-
-    }else if(gameFlag == state.GAME){
-
-    }else if(gameFlag == state.END){
-
-    }
-    });
-
-    game.start();
-};
-
-function makeTitle(game)
-{
-    //title definition
-    // get assets image and make title parts
-    var title = new Scene();
-    var titleLabel = new Sprite(277,24);
-    titleLabel.image = game.assets['title.png'];
-    titleLabel.x = game.width/2-titleLabel.width/2;
-    titleLabel.y = game.height/4;
-    var button = new Sprite(140, 65);
-    button.image = game.assets['start.png'];
-    button.x = game.width/2-button.width/2;
-    button.y = game.height-200;
-
-    // button clicked -> game start
-    button.addEventListener('touchstart', function(){
-	     var mainScene = makeMain(game);
-	     game.replaceScene(mainScene);
-       gameFlag = state.DICE;
-    });
-
-    title.addChild(titleLabel);
-    title.addChild(button);
-
-    return title;
-}
-
-function makeMain(game)
-{
-    //mainScene definition
-    var mainScene = new Scene();
-    mainScene.backgroundColor = "#FFFFFF";
-    var foo = new Label("foo!!");
-    mainScene.addChild(foo);
-    var test = new Grid(300,400);
-    mainScene.addChild(test);
-
-    return mainScene;
-}
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports) {
 
 /**
@@ -7154,21 +7067,128 @@ enchant.Tween = enchant.Class.create(enchant.Action, {
 
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports) {
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_enchant_js__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__modules_encha_classes_js__ = __webpack_require__(2);
 /*
   coding:utf-8
 */
-module.exports = Class.create(Sprite, {
-  initialize:function(x, y){
-    Sprite.call(this, 64, 64);
+
+
+//import encha from './modules/encha_classes';
+
+
+var state = {
+  INIT:0,
+  DICE:1,
+  GAME:2,
+  END:3
+};
+
+var gameFlag = state.INIT;
+
+window.onload = function(){
+    var game = new enchant.Core(1024, 768);
+    game.preload('start.png','title.png');
+
+    game.onload = function(){
+	     var title = makeTitle(game);
+	     game.rootScene.addChild(title);
+    };
+
+    game.addEventListener('enterframe', function(){
+	  //frame sequence
+    if(gameFlag == state.DICE){
+
+    }else if(gameFlag == state.GAME){
+
+    }else if(gameFlag == state.END){
+
+    }
+    });
+
+    game.start();
+};
+
+function makeTitle(game)
+{
+    //title definition
+    // get assets image and make title parts
+    var title = new enchant.Scene();
+    var titleLabel = new enchant.Sprite(277,24);
+    titleLabel.image = game.assets['title.png'];
+    titleLabel.x = game.width/2-titleLabel.width/2;
+    titleLabel.y = game.height/4;
+    var button = new enchant.Sprite(140, 65);
+    button.image = game.assets['start.png'];
+    button.x = game.width/2-button.width/2;
+    button.y = game.height-200;
+
+    // button clicked -> game start
+    button.addEventListener('touchstart', function(){
+	     var mainScene = makeMain(game);
+	     game.replaceScene(mainScene);
+       gameFlag = state.DICE;
+    });
+
+    title.addChild(titleLabel);
+    title.addChild(button);
+
+    return title;
+}
+
+function makeMain(game)
+{
+    //mainScene definition
+    var mainScene = new enchant.Scene();
+    mainScene.backgroundColor = "#FFFFFF";
+    var foo = new enchant.Label("foo!!");
+    mainScene.addChild(foo);
+    var test = new __WEBPACK_IMPORTED_MODULE_1__modules_encha_classes_js__["a" /* default */](30,40);
+    mainScene.addChild(test);
+
+    return mainScene;
+}
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_enchant_js__);
+/*
+  coding:utf-8
+*/
+
+
+class Grid extends enchant.Sprite {
+  constructor(x, y){
+    super();
+    this.initialize(x, y);
+  }
+
+  initialize(x, y){
+    super.initialize(64, 64);
     this.x = x;
     this.y = y;
-    var surface = new Surface(64, 64);
-    surface.context.backgroundColor = "#000000";
+    var surface = new enchant.Surface(64, 64);
+    surface.context.backgroundColor = "#FF0000";
+    surface.context.beginPath();
+	  surface.context.arc(50, 50, 45, 0, Math.PI*2, false);
+	  surface.context.fillStyle = "green";
+    surface.context.fill();
+    this.image = surface;
   }
-});
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Grid;
+
 
 
 /***/ })

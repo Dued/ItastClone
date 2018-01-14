@@ -1,12 +1,24 @@
 /*
   coding:utf-8
 */
-module.exports = Class.create(Sprite, {
-  initialize:function(x, y){
-    Sprite.call(this, 64, 64);
+import 'enchant.js'
+
+export default class Grid extends enchant.Sprite {
+  constructor(x, y){
+    super();
+    this.initialize(x, y);
+  }
+
+  initialize(x, y){
+    super.initialize(64, 64);
     this.x = x;
     this.y = y;
-    var surface = new Surface(64, 64);
-    surface.context.backgroundColor = "#000000";
+    var surface = new enchant.Surface(64, 64);
+    surface.context.backgroundColor = "#FF0000";
+    surface.context.beginPath();
+	  surface.context.arc(50, 50, 45, 0, Math.PI*2, false);
+	  surface.context.fillStyle = "green";
+    surface.context.fill();
+    this.image = surface;
   }
-});
+}

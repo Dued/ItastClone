@@ -7,5 +7,10 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.join(__dirname, './public/js')
+  },
+  resolve: {
+    alias: {
+      "enchant.js": path.join(__dirname, './src/js/enchant.js')
+    }
   }
 };
