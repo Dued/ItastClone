@@ -2,9 +2,10 @@
   coding:utf-8
 */
 
-import 'enchant.js'
+import 'enchant.js';
 //import encha from './modules/encha_classes';
-import Grid from './modules/encha_classes.js'
+import Board from './modules/Board';
+import Grid from './modules/Grid';
 
 var state = {
   INIT:0,
@@ -17,7 +18,7 @@ var gameFlag = state.INIT;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png');
+    game.preload('start.png','title.png','gridTest.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);
@@ -70,6 +71,6 @@ function makeMain(game)
     //mainScene definition
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
-
+    mainScene.addChild(new Board(game));
     return mainScene;
 }
