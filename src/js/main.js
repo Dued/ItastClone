@@ -18,7 +18,7 @@ var gameFlag = state.INIT;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridTest.png');
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);

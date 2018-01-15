@@ -7079,16 +7079,25 @@ enchant.Tween = enchant.Class.create(enchant.Action, {
 
 
 class Grid extends enchant.Sprite {
-  constructor(x, y, src){
+  constructor(x, y, src, v){
     super();
-    this.initialize(x, y, src);
+    this.initialize(x, y, src, v);
   }
 
-  initialize(x, y, src){
+  initialize(x, y, src, v){
     super.initialize(96, 96);
     this.x = x;
     this.y = y;
     this.image = src;
+    this.variaty = v;
+  }
+
+  hasStructOrEvent(){
+    switch(this.variaty){
+      case 0: return 'Start';
+      case 1: return 'Struct';
+      case 2: return 'Event';
+    }
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Grid;
@@ -7125,7 +7134,7 @@ var gameFlag = state.INIT;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridTest.png');
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);
@@ -7202,16 +7211,25 @@ class Board extends enchant.Group {
 
   initialize(game){
     super.initialize();
+    var file = ['gridStruct.png','gridEvent.png'];
     var n=96*6;
     var m=1024;
+    var r;
     for(var i=0; i<n; i+=96){
       if(i==0 || i==96*5){
         for(var j=256; j<m; j+=96){
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](j,i,game.assets['gridTest.png']));
+          if(i==0 && j==256){
+            this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](j,i,game.assets['gridStart.png'], 0));
+          }else{
+            r = Math.round(Math.random()*0.6);
+            this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](j,i,game.assets[file[r]], r+1));
+          }
         }
       }else{
-        this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256,i,game.assets['gridTest.png']));
-        this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+96*7,i,game.assets['gridTest.png']));
+        r = Math.round(Math.random()*0.6);
+        this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256,i,game.assets[file[r]], r+1));
+        r = Math.round(Math.random()*0.6);
+        this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+96*7,i,game.assets[file[r]], r+1));
       }
     }
   }
