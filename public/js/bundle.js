@@ -7146,7 +7146,7 @@ function makeMain(game)
 {
     //mainScene definition
     var mainScene = new enchant.Scene();
-    mainScene.backgroundColor = "#FFFFFF";
+    mainScene.backgroundColor = "#BBBBBB";
     var foo = new enchant.Label("foo!!");
     mainScene.addChild(foo);
     var test = new __WEBPACK_IMPORTED_MODULE_1__modules_encha_classes_js__["a" /* default */](30,40);

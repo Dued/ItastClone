@@ -70,10 +70,6 @@ function makeMain(game)
     //mainScene definition
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
-    var foo = new enchant.Label("foo!!");
-    mainScene.addChild(foo);
-    var test = new Grid(30,40);
-    mainScene.addChild(test);
 
     return mainScene;
 }

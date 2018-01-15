@@ -1,7 +1,19 @@
 /*
   coding:utf-8
 */
-import 'enchant.js'
+import 'enchant.js';
+
+export default class Board extends enchant.Group {
+  constructor(game){
+    super();
+    this.initialize(game);
+  }
+
+  initialize(game){
+    super.initialize();
+    
+  }
+}
 
 export default class Grid extends enchant.Sprite {
   constructor(x, y){
