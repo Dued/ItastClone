@@ -4,17 +4,18 @@
 import 'enchant.js';
 
 export default class Grid extends enchant.Sprite {
-  constructor(x, y, src, v){
+  constructor(x, y, src, v, index){
     super();
-    this.initialize(x, y, src, v);
+    this.initialize(x, y, src, v, index);
   }
 
-  initialize(x, y, src, v){
+  initialize(x, y, src, v, index){
     super.initialize(96, 96);
     this.x = x;
     this.y = y;
     this.image = src;
     this.variaty = v;
+    this.index = index;
   }
 
   hasStructOrEvent(){

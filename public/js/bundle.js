@@ -7079,17 +7079,18 @@ enchant.Tween = enchant.Class.create(enchant.Action, {
 
 
 class Grid extends enchant.Sprite {
-  constructor(x, y, src, v){
+  constructor(x, y, src, v, index){
     super();
-    this.initialize(x, y, src, v);
+    this.initialize(x, y, src, v, index);
   }
 
-  initialize(x, y, src, v){
+  initialize(x, y, src, v, index){
     super.initialize(96, 96);
     this.x = x;
     this.y = y;
     this.image = src;
     this.variaty = v;
+    this.index = index;
   }
 
   hasStructOrEvent(){
@@ -7215,23 +7216,44 @@ class Board extends enchant.Group {
     var n=96*6;
     var m=1024;
     var r;
-    for(var i=0; i<n; i+=96){
+
+    //start
+    this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 0, game.assets['gridStart.png'], 0, 0));
+    //generate grids for clock order
+    for(var i=1; i<24; i++){
+
+        if (i<=7){
+          r = Math.round(Math.random()*0.6);
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i));
+        }else if (i>7 && i<=12){
+          r = Math.round(Math.random()*0.6);
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](928, (i-7)*96, game.assets[file[r]], r+1, i));
+        }else if (i>12 && i<=19){
+          r = Math.round(Math.random()*0.6);
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](1024-(i-11)*96, 480, game.assets[file[r]], r+1, i));
+        }else if (i>19){
+          r = Math.round(Math.random()*0.6);
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i));
+        }
+    }
+
+    /*for(var i=0; i<n; i+=96){
       if(i==0 || i==96*5){
         for(var j=256; j<m; j+=96){
           if(i==0 && j==256){
-            this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](j,i,game.assets['gridStart.png'], 0));
+            this.addChild(new Grid(j,i,game.assets['gridStart.png'], 0));
           }else{
             r = Math.round(Math.random()*0.6);
-            this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](j,i,game.assets[file[r]], r+1));
+            this.addChild(new Grid(j,i,game.assets[file[r]], r+1));
           }
         }
       }else{
         r = Math.round(Math.random()*0.6);
-        this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256,i,game.assets[file[r]], r+1));
+        this.addChild(new Grid(256,i,game.assets[file[r]], r+1));
         r = Math.round(Math.random()*0.6);
-        this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+96*7,i,game.assets[file[r]], r+1));
+        this.addChild(new Grid(256+96*7,i,game.assets[file[r]], r+1));
       }
-    }
+    }*/
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Board;
