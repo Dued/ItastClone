@@ -25,4 +25,8 @@ export default class Grid extends enchant.Sprite {
       case 2: return 'Event';
     }
   }
+
+  hasIndex(){
+    return this.index || null;
+  }
 }

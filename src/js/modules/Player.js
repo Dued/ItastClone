@@ -4,31 +4,50 @@
 import 'enchant.js';
 
 export default class Player extends enchant.Sprite {
-  constructor(x, y, pnum){
+  constructor(pnum){
     super();
-    this.initialize(x, y, pnum);
+    this.initialize(pnum);
   }
 
-  initialize(x, y, pnum){
+  initialize(pnum){
     super.initialize(36, 36);
-    this.x = x;
-    this.y = y;
+    this.x = 256;
+    this.y = 0;
     //draw
-    var img = new enchant.Surface(36, 36);
-    img.context.beginPath();
-    img.context.arc(x, y, 18, 0, Math.PI*2, false);
     if(pnum == 1){
-      img.context.fillStyle = "red";
+      this.xoffset = 5;
+      this.yoffset = 5;
+      this.image = game.assets['p1.png'];
     }else{
-      img.context.fillStyle = "blue";
+      this.xoffset = 40;
+      this.yoffset = 5;
+      this.image = game.assets['p2.png'];
     }
-    img.context.fill();
-    this.image = img;
+    this.x += this.xoffset;
+    this.y += this.yoffset;
 
     //fields
     this.dice = [];
     this.money = 1000;
     this.structs = [];
     this.nowGrid = 0;
+  }
+
+  hasIndex(){
+    return this.index || null;
+  }
+
+  moveForward(num){
+    var next = (this.nowGrid + num)%24;
+    for(let child of this.parentNode.childNodes){
+      var ind = child.hasIndex();
+      if(ind == next){
+        //TODO:一マスずつ進むようにする？
+        this.x = child.x + this.xoffset;
+        this.y = child.y + this.yoffset;
+        this.nowGrid = ind;
+        break;
+      }
+    }
   }
 }

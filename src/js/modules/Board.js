@@ -1,16 +1,19 @@
 import 'enchant.js';
 import Grid from './Grid';
+import Player from './Player';
 
 export default class Board extends enchant.Group {
-  constructor(game){
+  constructor(){
     super();
-    this.initialize(game);
+    this.initialize();
   }
 
-  initialize(game){
+  initialize(){
     super.initialize();
     var file = ['gridStruct.png','gridEvent.png'];
     var r;
+    this.p1 = new Player(1);
+    this.p2 = new Player(2);
 
     //start
     this.addChild(new Grid(256, 0, game.assets['gridStart.png'], 0, 0));
@@ -30,7 +33,9 @@ export default class Board extends enchant.Group {
           this.addChild(new Grid(256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i));
         }
     }
-
+    //players
+    this.addChild(this.p1);
+    this.addChild(this.p2);
 
   }
 }

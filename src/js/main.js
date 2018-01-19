@@ -14,14 +14,16 @@ var state = {
   END:3
 };
 
+var game;
 var gameFlag = state.INIT;
+var board;
 
 window.onload = function(){
-    var game = new enchant.Core(1024, 768);
+    game = new enchant.Core(1024, 768);
     game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png');
 
     game.onload = function(){
-	     var title = makeTitle(game);
+	     var title = makeTitle();
 	     game.rootScene.addChild(title);
     };
 
@@ -39,7 +41,7 @@ window.onload = function(){
     game.start();
 };
 
-function makeTitle(game)
+function makeTitle()
 {
     //title definition
     // get assets image and make title parts
@@ -55,7 +57,7 @@ function makeTitle(game)
 
     // button clicked -> game start
     button.addEventListener('touchstart', function(){
-	     var mainScene = makeMain(game);
+	     var mainScene = makeMain();
 	     game.replaceScene(mainScene);
        gameFlag = state.DICE;
     });
@@ -66,11 +68,17 @@ function makeTitle(game)
     return title;
 }
 
-function makeMain(game)
+function makeMain()
 {
     //mainScene definition
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
-    mainScene.addChild(new Board(game));
+    board = new Board();
+    mainScene.addChild(board);
+    //forDebag
+    mainScene.addEventListener('touchstart', function(){
+      board.p1.moveForward(1);
+      board.p2.moveForward(2);
+    });
     return mainScene;
 }

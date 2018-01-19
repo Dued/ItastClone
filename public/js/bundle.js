@@ -7100,6 +7100,10 @@ class Grid extends enchant.Sprite {
       case 2: return 'Event';
     }
   }
+
+  hasIndex(){
+    return this.index || null;
+  }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Grid;
 
@@ -7131,14 +7135,16 @@ var state = {
   END:3
 };
 
+var game;
 var gameFlag = state.INIT;
+var board;
 
 window.onload = function(){
-    var game = new enchant.Core(1024, 768);
+    game = new enchant.Core(1024, 768);
     game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png');
 
     game.onload = function(){
-	     var title = makeTitle(game);
+	     var title = makeTitle();
 	     game.rootScene.addChild(title);
     };
 
@@ -7156,7 +7162,7 @@ window.onload = function(){
     game.start();
 };
 
-function makeTitle(game)
+function makeTitle()
 {
     //title definition
     // get assets image and make title parts
@@ -7172,7 +7178,7 @@ function makeTitle(game)
 
     // button clicked -> game start
     button.addEventListener('touchstart', function(){
-	     var mainScene = makeMain(game);
+	     var mainScene = makeMain();
 	     game.replaceScene(mainScene);
        gameFlag = state.DICE;
     });
@@ -7183,12 +7189,18 @@ function makeTitle(game)
     return title;
 }
 
-function makeMain(game)
+function makeMain()
 {
     //mainScene definition
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
-    mainScene.addChild(new __WEBPACK_IMPORTED_MODULE_1__modules_Board__["a" /* default */](game));
+    board = new __WEBPACK_IMPORTED_MODULE_1__modules_Board__["a" /* default */]();
+    mainScene.addChild(board);
+    //forDebag
+    mainScene.addEventListener('touchstart', function(){
+      board.p1.moveForward(1);
+      board.p2.moveForward(2);
+    });
     return mainScene;
 }
 
@@ -7201,27 +7213,28 @@ function makeMain(game)
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_enchant_js__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Grid__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Player__ = __webpack_require__(4);
+
 
 
 
 class Board extends enchant.Group {
-  constructor(game){
+  constructor(){
     super();
-    this.initialize(game);
+    this.initialize();
   }
 
-  initialize(game){
+  initialize(){
     super.initialize();
     var file = ['gridStruct.png','gridEvent.png'];
-    var n=96*6;
-    var m=1024;
     var r;
+    this.p1 = new __WEBPACK_IMPORTED_MODULE_2__Player__["a" /* default */](1);
+    this.p2 = new __WEBPACK_IMPORTED_MODULE_2__Player__["a" /* default */](2);
 
     //start
     this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 0, game.assets['gridStart.png'], 0, 0));
     //generate grids for clock order
     for(var i=1; i<24; i++){
-
         if (i<=7){
           r = Math.round(Math.random()*0.6);
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i));
@@ -7236,27 +7249,77 @@ class Board extends enchant.Group {
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i));
         }
     }
+    //players
+    this.addChild(this.p1);
+    this.addChild(this.p2);
 
-    /*for(var i=0; i<n; i+=96){
-      if(i==0 || i==96*5){
-        for(var j=256; j<m; j+=96){
-          if(i==0 && j==256){
-            this.addChild(new Grid(j,i,game.assets['gridStart.png'], 0));
-          }else{
-            r = Math.round(Math.random()*0.6);
-            this.addChild(new Grid(j,i,game.assets[file[r]], r+1));
-          }
-        }
-      }else{
-        r = Math.round(Math.random()*0.6);
-        this.addChild(new Grid(256,i,game.assets[file[r]], r+1));
-        r = Math.round(Math.random()*0.6);
-        this.addChild(new Grid(256+96*7,i,game.assets[file[r]], r+1));
-      }
-    }*/
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Board;
+
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_enchant_js__);
+/*
+  coding:utf-8
+*/
+
+
+class Player extends enchant.Sprite {
+  constructor(pnum){
+    super();
+    this.initialize(pnum);
+  }
+
+  initialize(pnum){
+    super.initialize(36, 36);
+    this.x = 256;
+    this.y = 0;
+    //draw
+    if(pnum == 1){
+      this.xoffset = 5;
+      this.yoffset = 5;
+      this.image = game.assets['p1.png'];
+    }else{
+      this.xoffset = 40;
+      this.yoffset = 5;
+      this.image = game.assets['p2.png'];
+    }
+    this.x += this.xoffset;
+    this.y += this.yoffset;
+
+    //fields
+    this.dice = [];
+    this.money = 1000;
+    this.structs = [];
+    this.nowGrid = 0;
+  }
+
+  hasIndex(){
+    return this.index || null;
+  }
+
+  moveForward(num){
+    var next = (this.nowGrid + num)%24;
+    for(let child of this.parentNode.childNodes){
+      var ind = child.hasIndex();
+      if(ind == next){
+        //TODO:一マスずつ進むようにする？
+        this.x = child.x + this.xoffset;
+        this.y = child.y + this.yoffset;
+        this.nowGrid = ind;
+        break;
+      }
+    }
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Player;
 
 
 
