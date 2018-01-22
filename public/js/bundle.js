@@ -7128,6 +7128,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+enchant();
+
 var state = {
   INIT:0,
   DICE:1,
@@ -7135,16 +7137,15 @@ var state = {
   END:3
 };
 
-var game;
 var gameFlag = state.INIT;
 var board;
 
 window.onload = function(){
-    game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png');
+    var game = new enchant.Core(1024, 768);
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png');
 
     game.onload = function(){
-	     var title = makeTitle();
+	     var title = makeTitle(game);
 	     game.rootScene.addChild(title);
     };
 
@@ -7162,7 +7163,7 @@ window.onload = function(){
     game.start();
 };
 
-function makeTitle()
+function makeTitle(game)
 {
     //title definition
     // get assets image and make title parts
@@ -7178,7 +7179,7 @@ function makeTitle()
 
     // button clicked -> game start
     button.addEventListener('touchstart', function(){
-	     var mainScene = makeMain();
+	     var mainScene = makeMain(game);
 	     game.replaceScene(mainScene);
        gameFlag = state.DICE;
     });
@@ -7189,12 +7190,12 @@ function makeTitle()
     return title;
 }
 
-function makeMain()
+function makeMain(game)
 {
     //mainScene definition
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
-    board = new __WEBPACK_IMPORTED_MODULE_1__modules_Board__["a" /* default */]();
+    board = new __WEBPACK_IMPORTED_MODULE_1__modules_Board__["a" /* default */](game);
     mainScene.addChild(board);
     //forDebag
     mainScene.addEventListener('touchstart', function(){
@@ -7219,17 +7220,17 @@ function makeMain()
 
 
 class Board extends enchant.Group {
-  constructor(){
+  constructor(game){
     super();
-    this.initialize();
+    this.initialize(game);
   }
 
-  initialize(){
+  initialize(game){
     super.initialize();
     var file = ['gridStruct.png','gridEvent.png'];
     var r;
-    this.p1 = new __WEBPACK_IMPORTED_MODULE_2__Player__["a" /* default */](1);
-    this.p2 = new __WEBPACK_IMPORTED_MODULE_2__Player__["a" /* default */](2);
+    this.p1 = new __WEBPACK_IMPORTED_MODULE_2__Player__["a" /* default */](game, 1);
+    this.p2 = new __WEBPACK_IMPORTED_MODULE_2__Player__["a" /* default */](game, 2);
 
     //start
     this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 0, game.assets['gridStart.png'], 0, 0));
@@ -7272,12 +7273,12 @@ class Board extends enchant.Group {
 
 
 class Player extends enchant.Sprite {
-  constructor(pnum){
+  constructor(game, pnum){
     super();
-    this.initialize(pnum);
+    this.initialize(game, pnum);
   }
 
-  initialize(pnum){
+  initialize(game, pnum){
     super.initialize(36, 36);
     this.x = 256;
     this.y = 0;

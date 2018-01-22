@@ -4,12 +4,12 @@
 import 'enchant.js';
 
 export default class Player extends enchant.Sprite {
-  constructor(pnum){
+  constructor(game, pnum){
     super();
-    this.initialize(pnum);
+    this.initialize(game, pnum);
   }
 
-  initialize(pnum){
+  initialize(game, pnum){
     super.initialize(36, 36);
     this.x = 256;
     this.y = 0;

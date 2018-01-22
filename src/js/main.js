@@ -7,6 +7,8 @@ import 'enchant.js';
 import Board from './modules/Board';
 import Grid from './modules/Grid';
 
+enchant();
+
 var state = {
   INIT:0,
   DICE:1,
@@ -14,16 +16,15 @@ var state = {
   END:3
 };
 
-var game;
 var gameFlag = state.INIT;
 var board;
 
 window.onload = function(){
-    game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png');
+    var game = new enchant.Core(1024, 768);
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png');
 
     game.onload = function(){
-	     var title = makeTitle();
+	     var title = makeTitle(game);
 	     game.rootScene.addChild(title);
     };
 
@@ -41,7 +42,7 @@ window.onload = function(){
     game.start();
 };
 
-function makeTitle()
+function makeTitle(game)
 {
     //title definition
     // get assets image and make title parts
@@ -57,7 +58,7 @@ function makeTitle()
 
     // button clicked -> game start
     button.addEventListener('touchstart', function(){
-	     var mainScene = makeMain();
+	     var mainScene = makeMain(game);
 	     game.replaceScene(mainScene);
        gameFlag = state.DICE;
     });
@@ -68,12 +69,12 @@ function makeTitle()
     return title;
 }
 
-function makeMain()
+function makeMain(game)
 {
     //mainScene definition
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
-    board = new Board();
+    board = new Board(game);
     mainScene.addChild(board);
     //forDebag
     mainScene.addEventListener('touchstart', function(){
