@@ -38,7 +38,7 @@ export default class Player extends enchant.Sprite {
   }
 
   moveForward(num){
-    var next = (this.nowGrid + num)%24;
+    var next = (this.nowGrid + num);
     for(let child of this.parentNode.childNodes){
       var ind = child.hasIndex();
       if(ind == next){

@@ -79,7 +79,7 @@ function makeMain(game)
     //forDebag
     mainScene.addEventListener('touchstart', function(){
       board.p1.moveForward(1);
-      board.p2.moveForward(2);
+      //board.p2.moveForward(2);
     });
     return mainScene;
 }

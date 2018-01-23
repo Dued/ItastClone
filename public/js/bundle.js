@@ -7200,7 +7200,7 @@ function makeMain(game)
     //forDebag
     mainScene.addEventListener('touchstart', function(){
       board.p1.moveForward(1);
-      board.p2.moveForward(2);
+      //board.p2.moveForward(2);
     });
     return mainScene;
 }
@@ -7233,21 +7233,21 @@ class Board extends enchant.Group {
     this.p2 = new __WEBPACK_IMPORTED_MODULE_2__Player__["a" /* default */](game, 2);
 
     //start
-    this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 0, game.assets['gridStart.png'], 0, 0));
+    this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 0, game.assets['gridStart.png'], 0, 1));
     //generate grids for clock order
     for(var i=1; i<24; i++){
         if (i<=7){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i));
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i+1));
         }else if (i>7 && i<=12){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](928, (i-7)*96, game.assets[file[r]], r+1, i));
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](928, (i-7)*96, game.assets[file[r]], r+1, i+1));
         }else if (i>12 && i<=19){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](1024-(i-11)*96, 480, game.assets[file[r]], r+1, i));
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](1024-(i-11)*96, 480, game.assets[file[r]], r+1, i+1));
         }else if (i>19){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i));
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i+1));
         }
     }
     //players
@@ -7307,7 +7307,7 @@ class Player extends enchant.Sprite {
   }
 
   moveForward(num){
-    var next = (this.nowGrid + num)%24;
+    var next = (this.nowGrid + num);
     for(let child of this.parentNode.childNodes){
       var ind = child.hasIndex();
       if(ind == next){
