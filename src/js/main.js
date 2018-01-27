@@ -17,11 +17,11 @@ var state = {
 };
 
 var gameFlag = state.INIT;
-var board;
+var board,logFrame,p1info,p2info;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png');
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);
@@ -76,6 +76,7 @@ function makeMain(game)
     mainScene.backgroundColor = "#FFFFFF";
     board = new Board(game);
     mainScene.addChild(board);
+
     //forDebag
     mainScene.addEventListener('touchstart', function(){
       board.p1.moveForward(1);
