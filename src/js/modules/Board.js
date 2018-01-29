@@ -38,4 +38,14 @@ export default class Board extends enchant.Group {
     this.addChild(this.p2);
 
   }
+
+  searchForIndex(ind){
+    for(let child of this.childNodes){
+      if(ind == child.hasIndex()){
+        return child;
+      }
+    }
+    return null;
+  }
+  
 }
