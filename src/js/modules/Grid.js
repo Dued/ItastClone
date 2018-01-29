@@ -27,6 +27,6 @@ export default class Grid extends enchant.Sprite {
   }
 
   hasIndex(){
-    return this.index || null;
+    return this.index;
   }
 }

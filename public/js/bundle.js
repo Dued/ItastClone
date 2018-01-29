@@ -7102,7 +7102,7 @@ class Grid extends enchant.Sprite {
   }
 
   hasIndex(){
-    return this.index || null;
+    return this.index;
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Grid;
@@ -7138,11 +7138,11 @@ var state = {
 };
 
 var gameFlag = state.INIT;
-var board;
+var board,logFrame,p1info,p2info;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png');
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);
@@ -7197,6 +7197,26 @@ function makeMain(game)
     mainScene.backgroundColor = "#FFFFFF";
     board = new __WEBPACK_IMPORTED_MODULE_1__modules_Board__["a" /* default */](game);
     mainScene.addChild(board);
+
+    p1info = new Sprite(368, 160);
+    p1info.image = game.assets['p1info.png'];
+    p1info.x = 256;
+    p1info.y = 608;
+
+    p2info = new Sprite(368, 160);
+    p2info.image = game.assets['p2info.png'];
+    p2info.x = 656;
+    p2info.y = 608;
+
+    logFrame = new Sprite(224, 768);
+    logFrame.image = game.assets['log.png'];
+    logFrame.x = 0;
+    logFrame.y = 0;
+
+    mainScene.addChild(p1info);
+    mainScene.addChild(p2info);
+    mainScene.addChild(logFrame);
+
     //forDebag
     mainScene.addEventListener('touchstart', function(){
       board.p1.moveForward(1);
@@ -7233,21 +7253,21 @@ class Board extends enchant.Group {
     this.p2 = new __WEBPACK_IMPORTED_MODULE_2__Player__["a" /* default */](game, 2);
 
     //start
-    this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 0, game.assets['gridStart.png'], 0, 1));
+    this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 0, game.assets['gridStart.png'], 0, 0));
     //generate grids for clock order
     for(var i=1; i<24; i++){
         if (i<=7){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i+1));
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i));
         }else if (i>7 && i<=12){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](928, (i-7)*96, game.assets[file[r]], r+1, i+1));
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](928, (i-7)*96, game.assets[file[r]], r+1, i));
         }else if (i>12 && i<=19){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](1024-(i-11)*96, 480, game.assets[file[r]], r+1, i+1));
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](1024-(i-11)*96, 480, game.assets[file[r]], r+1, i));
         }else if (i>19){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i+1));
+          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i));
         }
     }
     //players
@@ -7287,10 +7307,12 @@ class Player extends enchant.Sprite {
       this.xoffset = 5;
       this.yoffset = 5;
       this.image = game.assets['p1.png'];
+      this.index = 998;
     }else{
       this.xoffset = 40;
       this.yoffset = 5;
       this.image = game.assets['p2.png'];
+      this.index = 999;
     }
     this.x += this.xoffset;
     this.y += this.yoffset;
@@ -7303,13 +7325,14 @@ class Player extends enchant.Sprite {
   }
 
   hasIndex(){
-    return this.index || null;
+    return this.index;
   }
 
   moveForward(num){
-    var next = (this.nowGrid + num);
+    var next = (this.nowGrid + num) % 24;
     for(let child of this.parentNode.childNodes){
       var ind = child.hasIndex();
+      console.log(ind);
       if(ind == next){
         //TODO:一マスずつ進むようにする？
         this.x = child.x + this.xoffset;

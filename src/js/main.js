@@ -21,7 +21,7 @@ var board,logFrame,p1info,p2info;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png');
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);
@@ -76,6 +76,25 @@ function makeMain(game)
     mainScene.backgroundColor = "#FFFFFF";
     board = new Board(game);
     mainScene.addChild(board);
+
+    p1info = new Sprite(368, 160);
+    p1info.image = game.assets['p1info.png'];
+    p1info.x = 256;
+    p1info.y = 608;
+
+    p2info = new Sprite(368, 160);
+    p2info.image = game.assets['p2info.png'];
+    p2info.x = 656;
+    p2info.y = 608;
+
+    logFrame = new Sprite(224, 768);
+    logFrame.image = game.assets['log.png'];
+    logFrame.x = 0;
+    logFrame.y = 0;
+
+    mainScene.addChild(p1info);
+    mainScene.addChild(p2info);
+    mainScene.addChild(logFrame);
 
     //forDebag
     mainScene.addEventListener('touchstart', function(){

@@ -18,10 +18,12 @@ export default class Player extends enchant.Sprite {
       this.xoffset = 5;
       this.yoffset = 5;
       this.image = game.assets['p1.png'];
+      this.index = 998;
     }else{
       this.xoffset = 40;
       this.yoffset = 5;
       this.image = game.assets['p2.png'];
+      this.index = 999;
     }
     this.x += this.xoffset;
     this.y += this.yoffset;
@@ -34,11 +36,11 @@ export default class Player extends enchant.Sprite {
   }
 
   hasIndex(){
-    return this.index || null;
+    return this.index;
   }
 
   moveForward(num){
-    var next = (this.nowGrid + num);
+    var next = (this.nowGrid + num) % 24;
     for(let child of this.parentNode.childNodes){
       var ind = child.hasIndex();
       if(ind == next){
