@@ -18,6 +18,15 @@ export default class Grid extends enchant.Sprite {
     this.image = src;
     this.variaty = v;
     this.index = index;
+
+    if(v == 1){
+      var price = Math.floor(Math.random()*3+1);
+      price *= 100;
+      this.struct = new Building(price);
+    }else if(v == 2){
+      var num = Math.floor(Math.random()*4+1);
+      this.struct = new Event(num);
+    }
   }
 
   hasStructOrEvent(){

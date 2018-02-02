@@ -1,13 +1,12 @@
 export default class Building {
-  constructor(buying_price,property){
-    this.initialize(buying_price,property);
+  constructor(buying_price){
+    this.initialize(buying_price);
   }
 
   //物件の初期化
-  initialize(buying_price,property){
+  initialize(buying_price){
     this.lease=buying_price/2;//使用料
-    this.buying_price=buying_price;//買値
-    this.property=property;//財産価値
+    this.price=buying_price;//買値
     this.owner=0;//持主,初期値は0
   }
   //所有者の変更処理
@@ -16,7 +15,7 @@ export default class Building {
   }
   //購入処理
   bought(player){
-    player.money-=this.buying_price;
+    player.money-=this.price;
     this.owner=player.index;
     //return player;
   }
@@ -24,7 +23,7 @@ export default class Building {
   //物件のアップグレード
   upgrade(player){
     this.lease*=5;
-    player.money-=this.buying_price;
+    player.money-=this.price;
     //return player;
   }
 
