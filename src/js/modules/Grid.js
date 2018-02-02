@@ -2,6 +2,8 @@
   coding:utf-8
 */
 import 'enchant.js';
+import Building from './building.js';
+import Event from './event.js';
 
 export default class Grid extends enchant.Sprite {
   constructor(x, y, src, v, index){

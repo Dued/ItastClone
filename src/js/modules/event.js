@@ -1,58 +1,57 @@
+/*
 var event_money=1;
 var event_dice=2;
 var event_get_building=3;
 var event_lost_building=4;
 var no_event=-1;
+*/
 
-class Event{
-    constructor(num){
-	this.event_num=num
+export default class Event{
+  constructor(num){
+    this.initialize(num);
+  }
+
+  initialize(num){
+    this.event_num=num;
+  }
+
+  //ã‚¤ãƒ™ãƒ³ãƒˆã®å®Ÿè¡Œ
+  //event_process(player[, before_dice, after_dice])
+  event_process(player, before_dice, after_dice){
+    switch(this.event_num){
+      case 1://ãŠé‡‘ãŒå¢—ãˆã‚‹
+      var money_table=[100,200,300,500,-100,-200];
+      var rand_num=Math.round(Math.random()*5);
+      player.money+=money_table[rand_num];
+      break;
+
+      case 2://ãƒ€ã‚¤ã‚¹ã®ç›®ã‚’å¤‰æ›´
+      if(player.dice[before_dice] != 0){
+        player.dice[before_dice] -= 1;
+        player.dice[after_dice] += 1;
+      }else{
+        return "å¤‰ãˆã‚ˆã†ã¨ã—ãŸã‚µã‚¤ã‚³ãƒ­ã¯ã‚‚ã†æŒã£ã¦ã¾ã›ã‚“ã€‚";
+      }
+
+      break;
+
+      case 3://ç‰©ä»¶ã‚’å¾—ã‚‹
+      break;
+
+      case 4://ç‰©ä»¶ã‚’å¤±ã†
+      break;
     }
-    //¥¤¥Ù¥ó¥È¤Î¼Â¹Ô
-    function event_process(){
-	switch(event_num){
-	case event_money()://¤ª¶â¤¬Áı¤¨¤ë
-	    more_money(plyer);
-	    break;
-	case event_dice://¥À¥¤¥¹¤ÎÌÜ¤òÊÑ¹¹
-	    change_dice()
-	    break;
-	case event_get_building://Êª·ï¤òÆÀ¤ë
-	    get_building()
-	    break;
-	case event_lost_building://Êª·ï¤ò¼º¤¦
-	    lost_building()
-	    break;
-	}
-    }
+    return 0;
+  }
 }
 
-function more_money(player_any){
-    var money_table=[100,200,300,500,-100,-200];
-    var rand_num==rand_num=Math.floor(Math.random()*5);
-    player_any.money+=money_table[rand_num]
-    
-    return player_any;
-    
-}
-
-function change_dice(player_any){
-    var i;//½ñ¤­´¹¤¨¤ë¸å¤ÎÌÜ
-    var j;//½ñ¤­´¹¤¨¤ëÁ°¤ÎÌÜ
-    for (var k=0;player_any.money[k]==j;k++)
-    player_any.dice[i]=i;
-    return player_any;
-}
-
-function get_building(player_any){
-   
-}
-
+/*
 function lost_building(player_any){
-    //½êÍ­Êª·ï¤¬¤¢¤ë¤Ê¤é½èÍı
-    if(player_any.structs!=null){
-	var rand_num=Math.floor(Math.random()*player_any.structs.length);
-	player_any.structs.splice(randnum,1);//½êÍ­¼ÔÌµ¤·¤ËÊÑ¹¹
-    }
-    return player_any;
+  //æ‰€æœ‰ç‰©ä»¶ãŒã‚ã‚‹ãªã‚‰å‡¦ç†
+  if(player_any.structs!=null){
+    var rand_num=Math.floor(Math.random()*player_any.structs.length);
+    player_any.structs.splice(randnum,1);//æ‰€æœ‰è€…ç„¡ã—ã«å¤‰æ›´
+  }
+  //return player_any;
 }
+*/

@@ -1,49 +1,55 @@
-var non_own=-1;//Ã¯¤â½ê»ı¤·¤Æ¤¤¤Ê¤¤
-var someone_own=1;//Ã¯¤«¤¬½ê»ı¤·¤Æ¤¤¤ë
-var ownership=1;//½êÍ­¸¢¤¬¤¢¤ë
-var no_ownership=-1;//½êÍ­¸¢¤¬¤Ê¤¤
-
 export default class Building {
-  //Êª·ï¤Î½é´ü²½
-  initialize(lease,buying_price,property,pict_id){
-    this.lease=lease;//»ÈÍÑÎÁ
-    this.buying_price=buying_price;//ÇãÃÍ
-    this.property=property;//ºâ»º²ÁÃÍ
-    this.owner=non_own;//»ı¼ç
+  constructor(buying_price,property){
+    this.initialize(buying_price,property);
   }
-  //½êÍ­¼Ô¤ÎÊÑ¹¹½èÍı
+
+  //ç‰©ä»¶ã®åˆæœŸåŒ–
+  initialize(buying_price,property){
+    this.lease=buying_price/2;//ä½¿ç”¨æ–™
+    this.buying_price=buying_price;//è²·å€¤
+    this.property=property;//è²¡ç”£ä¾¡å€¤
+    this.owner=0;//æŒä¸»,åˆæœŸå€¤ã¯0
+  }
+  //æ‰€æœ‰è€…ã®å¤‰æ›´å‡¦ç†
   change_own(player_name){
     this.owner=player_name;
   }
-  //¹ØÆş½èÍı
-  bought(player_any){
+  //è³¼å…¥å‡¦ç†
+  bought(player){
     player.money-=this.buying_price;
-    this.owner=player;
-    return player_any;
+    this.owner=player.index;
+    //return player;
   }
 
-  //Êª·ï¤Î¥¢¥Ã¥×¥°¥ì¡¼¥É
-  upgrade(player_any){
-    this.lease=lease*10;
+  //ç‰©ä»¶ã®ã‚¢ãƒƒãƒ—ã‚°ãƒ¬ãƒ¼ãƒ‰
+  upgrade(player){
+    this.lease*=5;
     player.money-=this.buying_price;
-    return player_any;
+    //return player;
   }
 
-  //½êÍ­¼Ô¤¬°ú¿ô¤Ç¤¢¤ë¤«
-  reserch(player_name){
-    if(this.owner==player_name){
-      return ownership;
+  //æ”¯æ‰•ã„å‡¦ç†
+  pay(player){
+    player.money-=this.lease;
+  }
+
+  //æ‰€æœ‰è€…ãŒå¼•æ•°ã§ã‚ã‚‹ã‹
+  //æ‰€æœ‰è€…ã ã£ãŸã‚‰trueï¼Œãã†ã§ãªã‘ã‚Œã°falseã‚’è¿”ã™
+  research(player_index){
+    if(this.owner==player_index){
+      return true;
     }else{
-      return no_ownership;
+      return false;
     }
   }
 
-  //½êÍ­¼Ô¤ÎÍ­Ìµ
-  owner_serch(){
-    if(this.owner==non_own){
-      return non_own;
+  //æ‰€æœ‰è€…ã®æœ‰ç„¡
+  //æ‰€æœ‰è€…ãŒã„ã‚Œã°trueï¼Œãã†ã§ãªã‘ã‚Œã°falseã‚’è¿”ã™
+  owner_search(){
+    if(this.owner==0){
+      return false;
     }else{
-      return someone_own;
+      return true;
     }
   }
 }

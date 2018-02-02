@@ -7073,9 +7073,13 @@ enchant.Tween = enchant.Class.create(enchant.Action, {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_enchant_js__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__building_js__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__event_js__ = __webpack_require__(5);
 /*
   coding:utf-8
 */
+
+
 
 
 class Grid extends enchant.Sprite {
@@ -7234,7 +7238,7 @@ function makeMain(game)
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_enchant_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_enchant_js__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Grid__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Player__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Player__ = __webpack_require__(6);
 
 
 
@@ -7275,6 +7279,16 @@ class Board extends enchant.Group {
     this.addChild(this.p2);
 
   }
+
+  searchForIndex(ind){
+    for(let child of this.childNodes){
+      if(ind == child.hasIndex()){
+        return child;
+      }
+    }
+    return null;
+  }
+  
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Board;
 
@@ -7282,6 +7296,136 @@ class Board extends enchant.Group {
 
 /***/ }),
 /* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class Building {
+  constructor(buying_price,property){
+    this.initialize(buying_price,property);
+  }
+
+  //物件の初期化
+  initialize(buying_price,property){
+    this.lease=buying_price/2;//使用料
+    this.buying_price=buying_price;//買値
+    this.property=property;//財産価値
+    this.owner=0;//持主,初期値は0
+  }
+  //所有者の変更処理
+  change_own(player_name){
+    this.owner=player_name;
+  }
+  //購入処理
+  bought(player){
+    player.money-=this.buying_price;
+    this.owner=player.index;
+    //return player;
+  }
+
+  //物件のアップグレード
+  upgrade(player){
+    this.lease*=5;
+    player.money-=this.buying_price;
+    //return player;
+  }
+
+  //支払い処理
+  pay(player){
+    player.money-=this.lease;
+  }
+
+  //所有者が引数であるか
+  //所有者だったらtrue，そうでなければfalseを返す
+  research(player_index){
+    if(this.owner==player_index){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+  //所有者の有無
+  //所有者がいればtrue，そうでなければfalseを返す
+  owner_search(){
+    if(this.owner==0){
+      return false;
+    }else{
+      return true;
+    }
+  }
+}
+/* unused harmony export default */
+
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/*
+var event_money=1;
+var event_dice=2;
+var event_get_building=3;
+var event_lost_building=4;
+var no_event=-1;
+*/
+
+class Event{
+  constructor(num){
+    this.initialize(num);
+  }
+
+  initialize(num){
+    this.event_num=num;
+  }
+
+  //イベントの実行
+  //event_process(player[, before_dice, after_dice])
+  event_process(player, before_dice, after_dice){
+    switch(this.event_num){
+      case 1://お金が増える
+      var money_table=[100,200,300,500,-100,-200];
+      var rand_num=Math.round(Math.random()*5);
+      player.money+=money_table[rand_num];
+      break;
+
+      case 2://ダイスの目を変更
+      if(player.dice[before_dice] != 0){
+        player.dice[before_dice] -= 1;
+        player.dice[after_dice] += 1;
+      }else{
+        return "変えようとしたサイコロはもう持ってません。";
+      }
+
+      break;
+
+      case 3://物件を得る
+      break;
+
+      case 4://物件を失う
+      break;
+    }
+    return 0;
+  }
+}
+/* unused harmony export default */
+
+
+/*
+function lost_building(player_any){
+  //所有物件があるなら処理
+  if(player_any.structs!=null){
+    var rand_num=Math.floor(Math.random()*player_any.structs.length);
+    player_any.structs.splice(randnum,1);//所有者無しに変更
+  }
+  //return player_any;
+}
+*/
+
+
+/***/ }),
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7332,7 +7476,6 @@ class Player extends enchant.Sprite {
     var next = (this.nowGrid + num) % 24;
     for(let child of this.parentNode.childNodes){
       var ind = child.hasIndex();
-      console.log(ind);
       if(ind == next){
         //TODO:一マスずつ進むようにする？
         this.x = child.x + this.xoffset;
