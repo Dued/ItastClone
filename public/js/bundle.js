@@ -7095,6 +7095,15 @@ class Grid extends enchant.Sprite {
     this.image = src;
     this.variaty = v;
     this.index = index;
+
+    if(v == 1){
+      var price = Math.floor(Math.random()*3+1);
+      price *= 100;
+      this.struct = new __WEBPACK_IMPORTED_MODULE_1__building_js__["a" /* default */](price);
+    }else if(v == 2){
+      var num = Math.floor(Math.random()*4+1);
+      this.struct = new __WEBPACK_IMPORTED_MODULE_2__event_js__["a" /* default */](num);
+    }
   }
 
   hasStructOrEvent(){
@@ -7143,10 +7152,11 @@ var state = {
 
 var gameFlag = state.INIT;
 var board,logFrame,p1info,p2info;
+var turn = 0, movement = 0;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png');
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png','diceBG.png','shuf.png','done.png','dice.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);
@@ -7185,6 +7195,8 @@ function makeTitle(game)
     button.addEventListener('touchstart', function(){
 	     var mainScene = makeMain(game);
 	     game.replaceScene(mainScene);
+       var dScene = makeDiceScene(game);
+       game.pushScene(dScene);
        gameFlag = state.DICE;
     });
 
@@ -7229,6 +7241,85 @@ function makeMain(game)
     return mainScene;
 }
 
+function makeDiceScene(game){
+  var diceScene = new enchant.Scene();
+
+  var bg = new enchant.Sprite(670, 520);
+  bg.image = game.assets['diceBG.png'];
+  bg.x = game.width/2 - 670/2;
+  bg.y = game.height/2 - 520/2;
+
+  var shuf = new enchant.Sprite(160, 60);
+  shuf.image = game.assets['shuf.png'];
+  shuf.x = game.width/2 - 160/2;
+  shuf.y = bg.y + 400;
+
+  diceScene.addChild(bg);
+  diceScene.addChild(shuf);
+
+  var diceimg = new Array(6);
+  for(var i=0; i<6; i++){
+    diceimg[i] = new enchant.Sprite(96,96);
+    diceimg[i].image = game.assets['dice.png'];
+    diceimg[i].x = bg.x + 167*(i%3+1) - 96/2;
+    if(i<3){
+      diceimg[i].y = bg.y + 133;
+    }else{
+      diceimg[i].y = bg.y + 266;
+    }
+    diceScene.addChild(diceimg[i]);
+  }
+  var diceLabel = new Array(6);
+  for(i=0; i<6; i++){
+    diceLabel[i] = new enchant.Label();
+    diceLabel[i].text = "1P:0    2P:0";
+    diceLabel[i].x = diceimg[i].x;
+    diceLabel[i].y = diceimg[i].y + 100;
+
+    diceScene.addChild(diceLabel[i]);
+  }
+
+
+  shuf.addEventListener('touchstart', function(){
+    //dice1:1P dice2:2P
+    var dice1 = randomDice();
+    var dice2 = randomDice();
+    //labelに反映
+    for(i=0; i<6; i++){
+      diceLabel[i].text = "1P:" + dice1[i] + "    2P:" + dice2[i];
+    }
+    //決定ボタンを出現させる
+    var done = new enchant.Sprite(160, 60);
+    done.image = game.assets['done.png'];
+    done.x = shuf.x;
+    done.y = shuf.y;
+    done.addEventListener('touchstart', function(){
+      //playerに反映
+      board.p1.dice = dice1;
+      board.p2.dice = dice2;
+      console.log(board.p1.dice);
+      game.popScene();
+    });
+    diceScene.addChild(done);
+  });
+
+  return diceScene;
+}
+
+function randomDice(){
+  //サイコロを20個ランダムに振る処理
+  var tmp = new Array(20);
+  for(var i=0; i<20; i++){
+    tmp[i] = Math.floor(Math.random()*6);
+  }
+  var dice = [0,0,0,0,0,0];
+  for(i=0; i<20; i++){
+    dice[tmp[i]]++;
+  }
+
+  return dice;
+}
+
 
 /***/ }),
 /* 3 */
@@ -7261,16 +7352,16 @@ class Board extends enchant.Group {
     //generate grids for clock order
     for(var i=1; i<24; i++){
         if (i<=7){
-          r = Math.round(Math.random()*0.6);
+          r = Math.floor(Math.random()*0.6);
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i));
         }else if (i>7 && i<=12){
-          r = Math.round(Math.random()*0.6);
+          r = Math.floor(Math.random()*0.6);
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](928, (i-7)*96, game.assets[file[r]], r+1, i));
         }else if (i>12 && i<=19){
-          r = Math.round(Math.random()*0.6);
+          r = Math.floor(Math.random()*0.6);
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](1024-(i-11)*96, 480, game.assets[file[r]], r+1, i));
         }else if (i>19){
-          r = Math.round(Math.random()*0.6);
+          r = Math.floor(Math.random()*0.6);
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i));
         }
     }
@@ -7288,7 +7379,7 @@ class Board extends enchant.Group {
     }
     return null;
   }
-  
+
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Board;
 
@@ -7300,15 +7391,14 @@ class Board extends enchant.Group {
 
 "use strict";
 class Building {
-  constructor(buying_price,property){
-    this.initialize(buying_price,property);
+  constructor(buying_price){
+    this.initialize(buying_price);
   }
 
   //物件の初期化
-  initialize(buying_price,property){
+  initialize(buying_price){
     this.lease=buying_price/2;//使用料
-    this.buying_price=buying_price;//買値
-    this.property=property;//財産価値
+    this.price=buying_price;//買値
     this.owner=0;//持主,初期値は0
   }
   //所有者の変更処理
@@ -7317,7 +7407,7 @@ class Building {
   }
   //購入処理
   bought(player){
-    player.money-=this.buying_price;
+    player.money-=this.price;
     this.owner=player.index;
     //return player;
   }
@@ -7325,7 +7415,7 @@ class Building {
   //物件のアップグレード
   upgrade(player){
     this.lease*=5;
-    player.money-=this.buying_price;
+    player.money-=this.price;
     //return player;
   }
 
@@ -7354,7 +7444,7 @@ class Building {
     }
   }
 }
-/* unused harmony export default */
+/* harmony export (immutable) */ __webpack_exports__["a"] = Building;
 
 
 
@@ -7409,7 +7499,7 @@ class Event{
     return 0;
   }
 }
-/* unused harmony export default */
+/* harmony export (immutable) */ __webpack_exports__["a"] = Event;
 
 
 /*
