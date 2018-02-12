@@ -7137,7 +7137,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 */
 
 
-//import encha from './modules/encha_classes';
 
 
 
@@ -7151,8 +7150,10 @@ var state = {
 };
 
 var gameFlag = state.INIT;
-var board,logFrame,p1info,p2info;
+var board;
+var boardLabel,logLabel,p1infoLabel,p2infoLabel;
 var turn = 0, movement = 0;
+var logData = [], logCount = 0;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
@@ -7163,16 +7164,8 @@ window.onload = function(){
 	     game.rootScene.addChild(title);
     };
 
-    game.addEventListener('enterframe', function(){
-	  //frame sequence
-    if(gameFlag == state.DICE){
-
-    }else if(gameFlag == state.GAME){
-
-    }else if(gameFlag == state.END){
-
-    }
-    });
+    game.keybind('Y'.charCodeAt(), 'y');
+    game.keybind('N'.charCodeAt(), 'n');
 
     game.start();
 };
@@ -7214,17 +7207,17 @@ function makeMain(game)
     board = new __WEBPACK_IMPORTED_MODULE_1__modules_Board__["a" /* default */](game);
     mainScene.addChild(board);
 
-    p1info = new Sprite(368, 160);
+    var p1info = new enchant.Sprite(368, 160);
     p1info.image = game.assets['p1info.png'];
     p1info.x = 256;
     p1info.y = 608;
 
-    p2info = new Sprite(368, 160);
+    var p2info = new enchant.Sprite(368, 160);
     p2info.image = game.assets['p2info.png'];
     p2info.x = 656;
     p2info.y = 608;
 
-    logFrame = new Sprite(224, 768);
+    var logFrame = new enchant.Sprite(224, 768);
     logFrame.image = game.assets['log.png'];
     logFrame.x = 0;
     logFrame.y = 0;
@@ -7233,11 +7226,44 @@ function makeMain(game)
     mainScene.addChild(p2info);
     mainScene.addChild(logFrame);
 
+    p1infoLabel = new enchant.Label("");
+    p1infoLabel.font = "30px san-serif";
+    p1infoLabel.x = p1info.x+10;
+    p1infoLabel.y = p1info.y+35;
+
+    p2infoLabel = new enchant.Label("");
+    p2infoLabel.font = "30px san-serif";
+    p2infoLabel.x = p2info.x+10;
+    p2infoLabel.y = p2info.y+35;
+
+    logLabel = new enchant.Label("");
+    logLabel.width = 160;
+    logLabel.font = "12px serif";
+    logLabel.x = logFrame.x+10;
+    logLabel.y = logFrame.y+10;
+
+    mainScene.addChild(p1infoLabel);
+    mainScene.addChild(p2infoLabel);
+    mainScene.addChild(logLabel);
+
     //forDebag
+    /*
     mainScene.addEventListener('touchstart', function(){
       board.p1.moveForward(1);
       //board.p2.moveForward(2);
     });
+    */
+
+    game.addEventListener('enterframe', function(){
+	  //frame sequence
+    if(gameFlag == state.GAME){
+      if(movement == 1){
+      }
+    }else if(gameFlag == state.END){
+
+    }
+    });
+
     return mainScene;
 }
 
@@ -7272,13 +7298,12 @@ function makeDiceScene(game){
   var diceLabel = new Array(6);
   for(i=0; i<6; i++){
     diceLabel[i] = new enchant.Label();
-    diceLabel[i].text = "1P:0    2P:0";
+    diceLabel[i].text = "1P:0<br>2P:0";
     diceLabel[i].x = diceimg[i].x;
     diceLabel[i].y = diceimg[i].y + 100;
 
     diceScene.addChild(diceLabel[i]);
   }
-
 
   shuf.addEventListener('touchstart', function(){
     //dice1:1P dice2:2P
@@ -7286,7 +7311,7 @@ function makeDiceScene(game){
     var dice2 = randomDice();
     //labelに反映
     for(i=0; i<6; i++){
-      diceLabel[i].text = "1P:" + dice1[i] + "    2P:" + dice2[i];
+      diceLabel[i].text = "1P:" + dice1[i] + "<br>2P:" + dice2[i];
     }
     //決定ボタンを出現させる
     var done = new enchant.Sprite(160, 60);
@@ -7297,8 +7322,9 @@ function makeDiceScene(game){
       //playerに反映
       board.p1.dice = dice1;
       board.p2.dice = dice2;
-      console.log(board.p1.dice);
       game.popScene();
+      infoUpdate();
+      gameFlag = state.GAME;
     });
     diceScene.addChild(done);
   });
@@ -7318,6 +7344,41 @@ function randomDice(){
   }
 
   return dice;
+}
+
+function infoUpdate(){
+  var p1dices = board.p1.getDice();
+  var p2dices = board.p2.getDice();
+
+  var tmp1 = "", tmp2 = "";
+  for(var i=0; i<6; i++){
+    tmp1 += (p1dices[i] + "  ");
+    tmp2 += (p2dices[i] + "  ");
+  }
+
+  tmp1 += ("<br>所持金:" + board.p1.getMoney() + "G");
+  tmp2 += ("<br>所持金:" + board.p2.getMoney() + "G");
+
+  p1infoLabel.text = tmp1;
+  p2infoLabel.text = tmp2;
+}
+
+function logUpdate(num, str){
+  /*
+  ログの形式：
+  物件購入："1P:n番の物件を購入"
+  物件Upg："1P:n番の物件をアップグレード 100G->500G"
+  物件使用："1P:n番の物件で100G支払い"
+  イベント："1P：所持金 +100G" "1P：ダイス 4を一つ3に変更"
+  スタートマス："1P:スタートマスに止まったため所持金 +100G"
+  */
+  logCount++;
+  if(logCount >= 60){
+    var trush = logData.shift();
+  }
+  logData.push(num+"P："+str);
+
+  logLabel.text = logData.join('<br>');
 }
 
 
@@ -7352,16 +7413,16 @@ class Board extends enchant.Group {
     //generate grids for clock order
     for(var i=1; i<24; i++){
         if (i<=7){
-          r = Math.floor(Math.random()*0.6);
+          r = Math.round(Math.random()*0.6);
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i));
         }else if (i>7 && i<=12){
-          r = Math.floor(Math.random()*0.6);
+          r = Math.round(Math.random()*0.6);
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](928, (i-7)*96, game.assets[file[r]], r+1, i));
         }else if (i>12 && i<=19){
-          r = Math.floor(Math.random()*0.6);
+          r = Math.round(Math.random()*0.6);
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](1024-(i-11)*96, 480, game.assets[file[r]], r+1, i));
         }else if (i>19){
-          r = Math.floor(Math.random()*0.6);
+          r = Math.round(Math.random()*0.6);
           this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i));
         }
     }
@@ -7574,6 +7635,14 @@ class Player extends enchant.Sprite {
         break;
       }
     }
+  }
+
+  getDice(){
+    return this.dice;
+  }
+
+  getMoney(){
+    return this.money;
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Player;

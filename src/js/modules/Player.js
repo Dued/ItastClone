@@ -52,4 +52,12 @@ export default class Player extends enchant.Sprite {
       }
     }
   }
+
+  getDice(){
+    return this.dice;
+  }
+
+  getMoney(){
+    return this.money;
+  }
 }
