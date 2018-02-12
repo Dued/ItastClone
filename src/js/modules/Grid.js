@@ -25,6 +25,7 @@ export default class Grid extends enchant.Sprite {
       price *= 100;
       this.struct = new Building(price);
       this.label = new enchant.Label(""+price);
+      this.label.color = "#EEDFDF";
       this.label.x = this.x+10;
       this.label.y = this.y+60;
       this.label.font = "20px san-serif";

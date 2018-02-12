@@ -21,18 +21,23 @@ var boardLabel,logLabel,p1infoLabel,p2infoLabel;
 var turn = 0, movement = 0;
 var logData = [], logCount = 0;
 var buildingLabel = {};
+var selectFlag = null;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png','diceBG.png','shuf.png','done.png','dice.png');
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png','diceBG.png','shuf.png','done.png','dice.png','bg.png','board.png','yes.png','no.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);
 	     game.rootScene.addChild(title);
     };
 
-    game.keybind('Y'.charCodeAt(), 'y');
-    game.keybind('N'.charCodeAt(), 'n');
+    game.keybind('1'.charCodeAt(), 'q');
+    game.keybind('2'.charCodeAt(), 'w');
+    game.keybind('3'.charCodeAt(), 'e');
+    game.keybind('4'.charCodeAt(), 'r');
+    game.keybind('5'.charCodeAt(), 't');
+    game.keybind('6'.charCodeAt(), 'y');
 
     game.start();
 };
@@ -71,23 +76,36 @@ function makeMain(game)
     //mainScene definition
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
+
+    var background = new enchant.Sprite(1024, 768);
+    background.image = game.assets['bg.png'];
+    background.x = 0;
+    background.y = 0;
+    mainScene.addChild(background);
+
+    var boardBG = new enchant.Sprite(1024, 768);
+    boardBG.image = game.assets['board.png'];
+    boardBG.x = 0;
+    boardBG.y = 0;
+    mainScene.addChild(boardBG);
+
     board = new Board(game, buildingLabel);
     mainScene.addChild(board);
     for(let v in buildingLabel){
       mainScene.addChild(buildingLabel[v]);
     }
 
-    var p1info = new enchant.Sprite(368, 160);
+    var p1info = new enchant.Sprite(1024, 768);
     p1info.image = game.assets['p1info.png'];
-    p1info.x = 256;
-    p1info.y = 608;
+    p1info.x = 0;
+    p1info.y = 0;
 
-    var p2info = new enchant.Sprite(368, 160);
+    var p2info = new enchant.Sprite(1024, 768);
     p2info.image = game.assets['p2info.png'];
-    p2info.x = 656;
-    p2info.y = 608;
+    p2info.x = 0;
+    p2info.y = 0;
 
-    var logFrame = new enchant.Sprite(224, 768);
+    var logFrame = new enchant.Sprite(1024, 768);
     logFrame.image = game.assets['log.png'];
     logFrame.x = 0;
     logFrame.y = 0;
@@ -98,23 +116,34 @@ function makeMain(game)
 
     p1infoLabel = new enchant.Label("");
     p1infoLabel.font = "30px san-serif";
-    p1infoLabel.x = p1info.x+10;
-    p1infoLabel.y = p1info.y+35;
+    p1infoLabel.color = "#EEDFDF";
+    p1infoLabel.x = 280;
+    p1infoLabel.y = 643;
 
     p2infoLabel = new enchant.Label("");
     p2infoLabel.font = "30px san-serif";
-    p2infoLabel.x = p2info.x+10;
-    p2infoLabel.y = p2info.y+35;
+    p2infoLabel.color = "#EEDFDF";
+    p2infoLabel.x = 666;
+    p2infoLabel.y = 643;
 
     logLabel = new enchant.Label("");
     logLabel.width = 160;
-    logLabel.font = "12px serif";
-    logLabel.x = logFrame.x+10;
-    logLabel.y = logFrame.y+10;
+    logLabel.font = "16px san-serif";
+    logLabel.color = "#EEDFDF";
+    logLabel.x = 20;
+    logLabel.y = 18;
+
+    boardLabel = new enchant.Label("");
+    boardLabel.font = "30px san-serif";
+    boardLabel.color = "#EEDFDF";
+    boardLabel.x = 370;
+    boardLabel.y = 120;
+    boardLabel.width = 550;
 
     mainScene.addChild(p1infoLabel);
     mainScene.addChild(p2infoLabel);
     mainScene.addChild(logLabel);
+    mainScene.addChild(boardLabel);
 
     //forDebag
 
@@ -129,17 +158,27 @@ function makeMain(game)
       //frame sequence
       /*お試しセット
       if(movement == 1){
-        var now = board.p1.nowGrid;
-        var grid = board.searchForIndex(now);
-        if(grid){
-          if(grid.hasStructOrEvent() == 'Struct' && grid.struct.owner_search() == null){
+      var now = board.p1.nowGrid;
+      var grid = board.searchForIndex(now);
+      if(grid){
+        if(grid.hasStructOrEvent() == 'Struct' && grid.struct.owner_search() == null){
+          //message
+          boardUpdate('1P','空き物件 '+grid.struct.price+'G', "購入しますか？");
+          game.pushScene(createSelectPop(game));
+          if(selectFlag){
             grid.struct.bought(board.p1);
             infoUpdate();
             logUpdate(1,now+"番の物件を購入");
             buildingUpdate(now);
+            boardUpdate('1P','1Pの物件');
+            selectFlag = null;
+            movement = 0;
+          }else{
+            selectFlag = null;
             movement = 0;
           }
         }
+      }
       }*/
       if(gameFlag == state.GAME){
         if(movement == 1){
@@ -285,9 +324,40 @@ function buildingUpdate(index){
         buildingLabel[''+index].text = ""+grid.struct.lease;
         break;
       default:
-        //持ち主なし -> 黒，買値を表示させる
-        buildingLabel[''+index].color = "#000000";
+        //持ち主なし -> 白，買値を表示させる
+        buildingLabel[''+index].color = "#EEDFDF";
         buildingLabel[''+index].text = ""+grid.struct.price;
     }
   }
+}
+
+function boardUpdate(player, info, message=""){
+  boardLabel.text = player+"のターン<br>"+info+"<br><br>"+message;
+}
+
+function createSelectPop(game){
+  var selection = new enchant.Scene();
+
+  var yes = new enchant.Sprite(123, 50);
+  yes.image = game.assets['yes.png'];
+  yes.x = 500;
+  yes.y = 408;
+  var no = new enchant.Sprite(123, 50);
+  no.image = game.assets['no.png'];
+  no.x = 652;
+  no.y = 408;
+
+  yes.addEventListener('touchstart', function(){
+    selectFlag = true;
+    game.popScene();
+  });
+  no.addEventListener('touchstart', function(){
+    selectFlag = false;
+    game.popScene();
+  });
+
+  selection.addChild(yes);
+  selection.addChild(no);
+
+  return selection;
 }
