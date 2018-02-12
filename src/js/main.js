@@ -20,6 +20,7 @@ var board;
 var boardLabel,logLabel,p1infoLabel,p2infoLabel;
 var turn = 0, movement = 0;
 var logData = [], logCount = 0;
+var buildingLabel = {};
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
@@ -70,8 +71,11 @@ function makeMain(game)
     //mainScene definition
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
-    board = new Board(game);
+    board = new Board(game, buildingLabel);
     mainScene.addChild(board);
+    for(let v in buildingLabel){
+      mainScene.addChild(buildingLabel[v]);
+    }
 
     var p1info = new enchant.Sprite(368, 160);
     p1info.image = game.assets['p1info.png'];
@@ -113,21 +117,36 @@ function makeMain(game)
     mainScene.addChild(logLabel);
 
     //forDebag
-    /*
+
     mainScene.addEventListener('touchstart', function(){
       board.p1.moveForward(1);
       //board.p2.moveForward(2);
+      movement = 1;
     });
-    */
+
 
     game.addEventListener('enterframe', function(){
-	  //frame sequence
-    if(gameFlag == state.GAME){
+      //frame sequence
+      /*お試しセット
       if(movement == 1){
-      }
-    }else if(gameFlag == state.END){
+        var now = board.p1.nowGrid;
+        var grid = board.searchForIndex(now);
+        if(grid){
+          if(grid.hasStructOrEvent() == 'Struct' && grid.struct.owner_search() == null){
+            grid.struct.bought(board.p1);
+            infoUpdate();
+            logUpdate(1,now+"番の物件を購入");
+            buildingUpdate(now);
+            movement = 0;
+          }
+        }
+      }*/
+      if(gameFlag == state.GAME){
+        if(movement == 1){
+        }
+      }else if(gameFlag == state.END){
 
-    }
+      }
     });
 
     return mainScene;
@@ -245,4 +264,30 @@ function logUpdate(num, str){
   logData.push(num+"P："+str);
 
   logLabel.text = logData.join('<br>');
+}
+
+function buildingUpdate(index){
+  if(!Object.keys(buildingLabel).includes(''+index)){
+    return;
+  }
+  var grid = board.searchForIndex(index);
+  if(grid){
+    var own = grid.struct.owner_search();
+    switch (own) {
+      case 998:
+        //1P -> 赤，使用料を表示させる
+        buildingLabel[''+index].color = "#AA0000";
+        buildingLabel[''+index].text = ""+grid.struct.lease;
+        break;
+      case 999:
+        //2P -> 青，使用料を表示させる
+        buildingLabel[''+index].color = "#0000AA";
+        buildingLabel[''+index].text = ""+grid.struct.lease;
+        break;
+      default:
+        //持ち主なし -> 黒，買値を表示させる
+        buildingLabel[''+index].color = "#000000";
+        buildingLabel[''+index].text = ""+grid.struct.price;
+    }
+  }
 }

@@ -7095,11 +7095,16 @@ class Grid extends enchant.Sprite {
     this.image = src;
     this.variaty = v;
     this.index = index;
+    this.label = null;
 
     if(v == 1){
       var price = Math.floor(Math.random()*3+1);
       price *= 100;
       this.struct = new __WEBPACK_IMPORTED_MODULE_1__building_js__["a" /* default */](price);
+      this.label = new enchant.Label(""+price);
+      this.label.x = this.x+10;
+      this.label.y = this.y+60;
+      this.label.font = "20px san-serif";
     }else if(v == 2){
       var num = Math.floor(Math.random()*4+1);
       this.struct = new __WEBPACK_IMPORTED_MODULE_2__event_js__["a" /* default */](num);
@@ -7154,6 +7159,7 @@ var board;
 var boardLabel,logLabel,p1infoLabel,p2infoLabel;
 var turn = 0, movement = 0;
 var logData = [], logCount = 0;
+var buildingLabel = {};
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
@@ -7204,8 +7210,11 @@ function makeMain(game)
     //mainScene definition
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
-    board = new __WEBPACK_IMPORTED_MODULE_1__modules_Board__["a" /* default */](game);
+    board = new __WEBPACK_IMPORTED_MODULE_1__modules_Board__["a" /* default */](game, buildingLabel);
     mainScene.addChild(board);
+    for(let v in buildingLabel){
+      mainScene.addChild(buildingLabel[v]);
+    }
 
     var p1info = new enchant.Sprite(368, 160);
     p1info.image = game.assets['p1info.png'];
@@ -7247,21 +7256,33 @@ function makeMain(game)
     mainScene.addChild(logLabel);
 
     //forDebag
-    /*
+
     mainScene.addEventListener('touchstart', function(){
       board.p1.moveForward(1);
       //board.p2.moveForward(2);
+      movement = 1;
     });
-    */
+
 
     game.addEventListener('enterframe', function(){
-	  //frame sequence
-    if(gameFlag == state.GAME){
-      if(movement == 1){
-      }
-    }else if(gameFlag == state.END){
+      //frame sequence
+      if(gameFlag == state.GAME){
+        if(movement == 1){
+          var now = board.p1.nowGrid;
+          var grid = board.searchForIndex(now);
+          if(grid){
+            if(grid.hasStructOrEvent() == 'Struct' && grid.struct.owner_search() == null){
+              grid.struct.bought(board.p1);
+              infoUpdate();
+              logUpdate(1,now+"番の物件を購入");
+              buildingUpdate(now);
+              movement = 0;
+            }
+          }
+        }
+      }else if(gameFlag == state.END){
 
-    }
+      }
     });
 
     return mainScene;
@@ -7381,6 +7402,32 @@ function logUpdate(num, str){
   logLabel.text = logData.join('<br>');
 }
 
+function buildingUpdate(index){
+  if(!Object.keys(buildingLabel).includes(''+index)){
+    return;
+  }
+  var grid = board.searchForIndex(index);
+  if(grid){
+    var own = grid.struct.owner_search();
+    switch (own) {
+      case 998:
+        //1P -> 赤，使用料を表示させる
+        buildingLabel[''+index].color = "#AA0000";
+        buildingLabel[''+index].text = ""+grid.struct.lease;
+        break;
+      case 999:
+        //2P -> 青，使用料を表示させる
+        buildingLabel[''+index].color = "#0000AA";
+        buildingLabel[''+index].text = ""+grid.struct.lease;
+        break;
+      default:
+        //持ち主なし -> 黒，買値を表示させる
+        buildingLabel[''+index].color = "#000000";
+        buildingLabel[''+index].text = ""+grid.struct.price;
+    }
+  }
+}
+
 
 /***/ }),
 /* 3 */
@@ -7396,12 +7443,12 @@ function logUpdate(num, str){
 
 
 class Board extends enchant.Group {
-  constructor(game){
+  constructor(game, bLabel){
     super();
-    this.initialize(game);
+    this.initialize(game, bLabel);
   }
 
-  initialize(game){
+  initialize(game, bLabel){
     super.initialize();
     var file = ['gridStruct.png','gridEvent.png'];
     var r;
@@ -7411,19 +7458,24 @@ class Board extends enchant.Group {
     //start
     this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 0, game.assets['gridStart.png'], 0, 0));
     //generate grids for clock order
+    var tmpGrid;
     for(var i=1; i<24; i++){
         if (i<=7){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i));
+          tmpGrid = new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256+i*96, 0, game.assets[file[r]], r+1, i);
         }else if (i>7 && i<=12){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](928, (i-7)*96, game.assets[file[r]], r+1, i));
+          tmpGrid = new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](928, (i-7)*96, game.assets[file[r]], r+1, i);
         }else if (i>12 && i<=19){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](1024-(i-11)*96, 480, game.assets[file[r]], r+1, i));
+          tmpGrid = new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](1024-(i-11)*96, 480, game.assets[file[r]], r+1, i);
         }else if (i>19){
           r = Math.round(Math.random()*0.6);
-          this.addChild(new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i));
+          tmpGrid = new __WEBPACK_IMPORTED_MODULE_1__Grid__["a" /* default */](256, 96*6-(i-18)*96, game.assets[file[r]], r+1, i);
+        }
+        this.addChild(tmpGrid);
+        if(r+1 == 1){
+          bLabel[''+tmpGrid.index] = tmpGrid.label;
         }
     }
     //players
@@ -7496,12 +7548,12 @@ class Building {
   }
 
   //所有者の有無
-  //所有者がいればtrue，そうでなければfalseを返す
+  //所有者がいればindex値を，そうでなければnullを返す
   owner_search(){
     if(this.owner==0){
-      return false;
+      return null;
     }else{
-      return true;
+      return this.owner;
     }
   }
 }

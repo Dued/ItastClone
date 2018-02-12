@@ -43,12 +43,12 @@ export default class Building {
   }
 
   //所有者の有無
-  //所有者がいればtrue，そうでなければfalseを返す
+  //所有者がいればindex値を，そうでなければnullを返す
   owner_search(){
     if(this.owner==0){
-      return false;
+      return null;
     }else{
-      return true;
+      return this.owner;
     }
   }
 }
