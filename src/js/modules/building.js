@@ -28,8 +28,9 @@ export default class Building {
   }
 
   //支払い処理
-  pay(player){
-    player.money-=this.lease;
+  pay(player1, player2){
+    player1.money-=this.lease;
+    player2.money+=this.lease;
   }
 
   //所有者が引数であるか

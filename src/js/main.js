@@ -15,6 +15,11 @@ var state = {
   END:3
 };
 
+var proc = {
+  NONOWN:0,
+  OWN:1
+};
+
 var gameFlag = state.INIT;
 var board;
 var boardLabel,logLabel,p1infoLabel,p2infoLabel;
@@ -25,13 +30,14 @@ var selectFlag = null;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png','diceBG.png','shuf.png','done.png','dice.png','bg.png','board.png','yes.png','no.png');
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png','diceBG.png','shuf.png','done.png','bg.png','board.png','yes.png','no.png','1.png','2.png','3.png','4.png','5.png','6.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);
 	     game.rootScene.addChild(title);
     };
 
+    game.keybind('Z'.charCodeAt(), 'z');
     game.keybind('1'.charCodeAt(), 'q');
     game.keybind('2'.charCodeAt(), 'w');
     game.keybind('3'.charCodeAt(), 'e');
@@ -146,15 +152,15 @@ function makeMain(game)
     mainScene.addChild(boardLabel);
 
     //forDebag
-
+    /*
     mainScene.addEventListener('touchstart', function(){
       board.p1.moveForward(1);
       //board.p2.moveForward(2);
       movement = 1;
     });
+    */
 
-
-    game.addEventListener('enterframe', function(){
+    mainScene.addEventListener('enterframe', function(){
       //frame sequence
       /*お試しセット
       if(movement == 1){
@@ -164,24 +170,79 @@ function makeMain(game)
         if(grid.hasStructOrEvent() == 'Struct' && grid.struct.owner_search() == null){
           //message
           boardUpdate('1P','空き物件 '+grid.struct.price+'G', "購入しますか？");
-          game.pushScene(createSelectPop(game));
-          if(selectFlag){
+          if(game.input.y){
             grid.struct.bought(board.p1);
             infoUpdate();
             logUpdate(1,now+"番の物件を購入");
             buildingUpdate(now);
             boardUpdate('1P','1Pの物件');
-            selectFlag = null;
             movement = 0;
-          }else{
-            selectFlag = null;
+          }else if(game.input.n){
             movement = 0;
           }
         }
       }
       }*/
+      if(game.input.z){
+        if(turn == 0){
+          board.p1.moveForward(1);
+        }else{
+          board.p2.moveForward(1);
+        }
+        movement = 1;
+      }
       if(gameFlag == state.GAME){
         if(movement == 1){
+          var p,dest_p,pNum,destNum;
+          if(turn == 0){
+            p = board.p1;
+            dest_p = board.p2;
+            pNum = 1;
+            destNum = 2;
+          }else{
+            p = board.p2;
+            dest_p = board.p1;
+            pNum = 2;
+            destNum = 1;
+          }
+          var now = p.nowGrid;
+          var grid = board.searchForIndex(now);
+          if(grid){
+            switch(grid.hasStructOrEvent()){
+              case 'Struct':
+                //物件マスのとき
+                var owner = grid.struct.owner_search();
+                if(owner == null){
+                  //持ち主なし
+                  boardUpdate(pNum+'P','空き物件 '+grid.struct.price+'G', "購入しますか？");
+                  game.pushScene(createSelectPop(game, proc.NONOWN, grid, p));
+                }else{
+                  //持ち主あり
+                  if(owner == p.index){
+                    //持ち主が自分
+                    boardUpdate(pNum+'P',pNum+'Pの物件 ', "アップグレードしますか？<br>支払い："+grid.struct.price+'G，使用料：'+grid.struct.lease+'G→'+(grid.struct.lease*5)+'G');
+                    game.pushScene(createSelectPop(game, proc.OWN, grid, p));
+                  }else{
+                    //持ち主が相手
+                    grid.struct.pay(p, dest_p);
+                    infoUpdate();
+                    logUpdate(pNum,now+"番の物件で"+grid.struct.lease+"G支払い");
+                    boardUpdate(pNum+'P',destNum+'Pの物件',destNum+"Pに"+grid.struct.lease+"G支払いました．");
+                    game.pushScene(createAgreePop(game));
+                  }
+                }
+                break;
+              case 'Event':
+                //イベントマスのとき
+                
+                break;
+              case 'Start':
+                //スタートマスのとき
+                break;
+            }
+
+            turn = (turn+1)%2;
+          }
         }
       }else if(gameFlag == state.END){
 
@@ -210,18 +271,19 @@ function makeDiceScene(game){
   var diceimg = new Array(6);
   for(var i=0; i<6; i++){
     diceimg[i] = new enchant.Sprite(96,96);
-    diceimg[i].image = game.assets['dice.png'];
+    diceimg[i].image = game.assets[(i+1)+'.png'];
     diceimg[i].x = bg.x + 167*(i%3+1) - 96/2;
     if(i<3){
-      diceimg[i].y = bg.y + 133;
+      diceimg[i].y = bg.y + 67;
     }else{
-      diceimg[i].y = bg.y + 266;
+      diceimg[i].y = bg.y + 233;
     }
     diceScene.addChild(diceimg[i]);
   }
   var diceLabel = new Array(6);
   for(i=0; i<6; i++){
     diceLabel[i] = new enchant.Label();
+    diceLabel[i].font = "22px san-serif";
     diceLabel[i].text = "1P:0<br>2P:0";
     diceLabel[i].x = diceimg[i].x;
     diceLabel[i].y = diceimg[i].y + 100;
@@ -297,7 +359,7 @@ function logUpdate(num, str){
   スタートマス："1P:スタートマスに止まったため所持金 +100G"
   */
   logCount++;
-  if(logCount >= 60){
+  if(logCount >= 20){
     var trush = logData.shift();
   }
   logData.push(num+"P："+str);
@@ -335,7 +397,7 @@ function boardUpdate(player, info, message=""){
   boardLabel.text = player+"のターン<br>"+info+"<br><br>"+message;
 }
 
-function createSelectPop(game){
+function createSelectPop(game, flag, grid, p){
   var selection = new enchant.Scene();
 
   var yes = new enchant.Sprite(123, 50);
@@ -349,10 +411,12 @@ function createSelectPop(game){
 
   yes.addEventListener('touchstart', function(){
     selectFlag = true;
+    processYN(flag, grid, p);
     game.popScene();
   });
   no.addEventListener('touchstart', function(){
     selectFlag = false;
+    processYN(flag, grid, p);
     game.popScene();
   });
 
@@ -360,4 +424,49 @@ function createSelectPop(game){
   selection.addChild(no);
 
   return selection;
+}
+
+function processYN(flag, grid, player){
+  var playerNum = turn+1;
+  if(flag == proc.NONOWN){
+    //空き物件のときの処理 はい→購入 いいえ→何もしない
+    if(selectFlag){
+      grid.struct.bought(player);
+      infoUpdate();
+      logUpdate(playerNum,player.nowGrid+"番の物件を購入");
+      buildingUpdate(player.nowGrid);
+      boardUpdate(playerNum+'P',playerNum+'Pの物件');
+    }
+  }else if(flag == proc.OWN){
+    //自分が所有しているときの処理 はい→アップグレード いいえ→何もしない
+    if(selectFlag){
+      grid.struct.upgrade(player);
+      infoUpdate();
+      logUpdate(playerNum,player.nowGrid+"番の物件をアップグレード");
+      buildingUpdate(player.nowGrid);
+      boardUpdate(playerNum+'P',playerNum+'Pの物件');
+    }
+  }
+  selectFlag = null;
+  movement = 0;
+}
+
+function createAgreePop(game){
+  //イベント後などに「はい」だけを表示させるScene
+  var agree = new enchant.Scene();
+
+  var yes = new enchant.Sprite(123, 50);
+  yes.image = game.assets['yes.png'];
+  yes.x = game.width/2-123/2;
+  yes.y = 408;
+
+  yes.addEventListener('touchstart', function(){
+    //特に何もせず終了する
+    movement = 0;
+    game.popScene();
+  });
+
+  agree.addChild(yes);
+
+  return agree;
 }
