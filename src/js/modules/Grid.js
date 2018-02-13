@@ -30,7 +30,7 @@ export default class Grid extends enchant.Sprite {
       this.label.y = this.y+60;
       this.label.font = "20px san-serif";
     }else if(v == 2){
-      var num = Math.floor(Math.random()*4+1);
+      var num = Math.floor(Math.random()*2)+1;
       this.struct = new Event(num);
     }
   }

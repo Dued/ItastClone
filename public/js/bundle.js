@@ -7107,7 +7107,7 @@ class Grid extends enchant.Sprite {
       this.label.y = this.y+60;
       this.label.font = "20px san-serif";
     }else if(v == 2){
-      var num = Math.floor(Math.random()*4+1);
+      var num = Math.floor(Math.random()*2)+1;
       this.struct = new __WEBPACK_IMPORTED_MODULE_2__event_js__["a" /* default */](num);
     }
   }
@@ -7374,6 +7374,29 @@ function makeMain(game)
                 break;
               case 'Event':
                 //イベントマスのとき
+                var before,after;
+                do{
+                  before = Math.floor(Math.random()*6);
+                  after = Math.floor(Math.random()*6);
+                }while(before == after || p.dice[before]<=0);
+                var ret = grid.struct.event_process(p, before, after);
+                infoUpdate();
+                switch (grid.struct.event_num) {
+                  case 1:
+                    if(ret>0){
+                      logUpdate(pNum,"所持金 +"+ret+"G");
+                      boardUpdate(pNum+'P',"イベント","所持金に+"+ret+"Gされました．");
+                    }else{
+                      logUpdate(pNum,"所持金 "+ret+"G");
+                      boardUpdate(pNum+'P',"イベント","所持金から"+ret+"Gされました．");
+                    }
+                    break;
+                  case 2:
+                    logUpdate(pNum,"ダイス "+(before+1)+"を一つ"+(after+1)+"に変更");
+                    boardUpdate(pNum+'P',"イベント","ダイス "+(before+1)+"を一つ"+(after+1)+"に変更しました．");
+                    break;
+                }
+                game.pushScene(createAgreePop(game));
                 break;
               case 'Start':
                 //スタートマスのとき
@@ -7498,7 +7521,7 @@ function logUpdate(num, str){
   スタートマス："1P:スタートマスに止まったため所持金 +100G"
   */
   logCount++;
-  if(logCount >= 25){
+  if(logCount >= 20){
     var trush = logData.shift();
   }
   logData.push(num+"P："+str);
@@ -7774,12 +7797,14 @@ class Event{
       var money_table=[100,200,300,500,-100,-200];
       var rand_num=Math.round(Math.random()*5);
       player.money+=money_table[rand_num];
+      return money_table[rand_num];
       break;
 
       case 2://ダイスの目を変更
       if(player.dice[before_dice] != 0){
         player.dice[before_dice] -= 1;
         player.dice[after_dice] += 1;
+        return true;
       }else{
         return "変えようとしたサイコロはもう持ってません。";
       }

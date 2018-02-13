@@ -234,7 +234,29 @@ function makeMain(game)
                 break;
               case 'Event':
                 //イベントマスのとき
-                
+                var before,after;
+                do{
+                  before = Math.floor(Math.random()*6);
+                  after = Math.floor(Math.random()*6);
+                }while(before == after || p.dice[before]<=0);
+                var ret = grid.struct.event_process(p, before, after);
+                infoUpdate();
+                switch (grid.struct.event_num) {
+                  case 1:
+                    if(ret>0){
+                      logUpdate(pNum,"所持金 +"+ret+"G");
+                      boardUpdate(pNum+'P',"イベント","所持金に+"+ret+"Gされました．");
+                    }else{
+                      logUpdate(pNum,"所持金 "+ret+"G");
+                      boardUpdate(pNum+'P',"イベント","所持金から"+ret+"Gされました．");
+                    }
+                    break;
+                  case 2:
+                    logUpdate(pNum,"ダイス "+(before+1)+"を一つ"+(after+1)+"に変更");
+                    boardUpdate(pNum+'P',"イベント","ダイス "+(before+1)+"を一つ"+(after+1)+"に変更しました．");
+                    break;
+                }
+                game.pushScene(createAgreePop(game));
                 break;
               case 'Start':
                 //スタートマスのとき

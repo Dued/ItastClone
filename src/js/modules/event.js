@@ -23,12 +23,14 @@ export default class Event{
       var money_table=[100,200,300,500,-100,-200];
       var rand_num=Math.round(Math.random()*5);
       player.money+=money_table[rand_num];
+      return money_table[rand_num];
       break;
 
       case 2://ダイスの目を変更
       if(player.dice[before_dice] != 0){
         player.dice[before_dice] -= 1;
         player.dice[after_dice] += 1;
+        return true;
       }else{
         return "変えようとしたサイコロはもう持ってません。";
       }
