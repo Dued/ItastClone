@@ -162,32 +162,11 @@ function makeMain(game)
 
     mainScene.addEventListener('enterframe', function(){
       //frame sequence
-      /*お試しセット
-      if(movement == 1){
-      var now = board.p1.nowGrid;
-      var grid = board.searchForIndex(now);
-      if(grid){
-        if(grid.hasStructOrEvent() == 'Struct' && grid.struct.owner_search() == null){
-          //message
-          boardUpdate('1P','空き物件 '+grid.struct.price+'G', "購入しますか？");
-          if(game.input.y){
-            grid.struct.bought(board.p1);
-            infoUpdate();
-            logUpdate(1,now+"番の物件を購入");
-            buildingUpdate(now);
-            boardUpdate('1P','1Pの物件');
-            movement = 0;
-          }else if(game.input.n){
-            movement = 0;
-          }
-        }
-      }
-      }*/
       if(game.input.z){
         if(turn == 0){
-          board.p1.moveForward(1);
+          board.p1.moveForward(3);
         }else{
-          board.p2.moveForward(1);
+          board.p2.moveForward(8);
         }
         movement = 1;
       }
@@ -260,6 +239,13 @@ function makeMain(game)
                 break;
               case 'Start':
                 //スタートマスのとき
+                var money_table=[200,300,500];
+                var rand_num=Math.round(Math.random()*3);
+                p.money+=money_table[rand_num];
+                infoUpdate();
+                logUpdate(pNum,"スタートマス 所持金 +"+money_table[rand_num]+"G");
+                boardUpdate(pNum+'P',"スタートマス","スタートマスに止まったため"+money_table[rand_num]+"G貰いました．");
+                game.pushScene(createAgreePop(game));
                 break;
             }
 
@@ -282,7 +268,7 @@ function makeDiceScene(game){
   bg.x = game.width/2 - 670/2;
   bg.y = game.height/2 - 520/2;
 
-  var shuf = new enchant.Sprite(160, 60);
+  var shuf = new enchant.Sprite(123, 50);
   shuf.image = game.assets['shuf.png'];
   shuf.x = game.width/2 - 160/2;
   shuf.y = bg.y + 400;
@@ -322,7 +308,7 @@ function makeDiceScene(game){
       diceLabel[i].text = "1P:" + dice1[i] + "<br>2P:" + dice2[i];
     }
     //決定ボタンを出現させる
-    var done = new enchant.Sprite(160, 60);
+    var done = new enchant.Sprite(123, 50);
     done.image = game.assets['done.png'];
     done.x = shuf.x;
     done.y = shuf.y;
@@ -378,7 +364,7 @@ function logUpdate(num, str){
   物件Upg："1P:n番の物件をアップグレード 100G->500G"
   物件使用："1P:n番の物件で100G支払い"
   イベント："1P：所持金 +100G" "1P：ダイス 4を一つ3に変更"
-  スタートマス："1P:スタートマスに止まったため所持金 +100G"
+  スタートマス："1P:スタートマス 所持金 +100G"
   */
   logCount++;
   if(logCount >= 20){
@@ -479,7 +465,7 @@ function createAgreePop(game){
 
   var yes = new enchant.Sprite(123, 50);
   yes.image = game.assets['yes.png'];
-  yes.x = game.width/2-123/2;
+  yes.x = 567;
   yes.y = 408;
 
   yes.addEventListener('touchstart', function(){

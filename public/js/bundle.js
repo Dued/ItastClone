@@ -7325,9 +7325,9 @@ function makeMain(game)
       }*/
       if(game.input.z){
         if(turn == 0){
-          board.p1.moveForward(1);
+          board.p1.moveForward(3);
         }else{
-          board.p2.moveForward(1);
+          board.p2.moveForward(8);
         }
         movement = 1;
       }
@@ -7400,6 +7400,13 @@ function makeMain(game)
                 break;
               case 'Start':
                 //スタートマスのとき
+                var money_table=[200,300,500];
+                var rand_num=Math.round(Math.random()*3);
+                p.money+=money_table[rand_num];
+                infoUpdate();
+                logUpdate(pNum,"スタートマス 所持金 +"+money_table[rand_num]+"G");
+                boardUpdate(pNum+'P',"スタートマス","スタートマスに止まったため"+money_table[rand_num]+"G貰いました．");
+                game.pushScene(createAgreePop(game));
                 break;
             }
 
@@ -7422,7 +7429,7 @@ function makeDiceScene(game){
   bg.x = game.width/2 - 670/2;
   bg.y = game.height/2 - 520/2;
 
-  var shuf = new enchant.Sprite(160, 60);
+  var shuf = new enchant.Sprite(123, 50);
   shuf.image = game.assets['shuf.png'];
   shuf.x = game.width/2 - 160/2;
   shuf.y = bg.y + 400;
@@ -7462,7 +7469,7 @@ function makeDiceScene(game){
       diceLabel[i].text = "1P:" + dice1[i] + "<br>2P:" + dice2[i];
     }
     //決定ボタンを出現させる
-    var done = new enchant.Sprite(160, 60);
+    var done = new enchant.Sprite(123, 50);
     done.image = game.assets['done.png'];
     done.x = shuf.x;
     done.y = shuf.y;
@@ -7518,7 +7525,7 @@ function logUpdate(num, str){
   物件Upg："1P:n番の物件をアップグレード 100G->500G"
   物件使用："1P:n番の物件で100G支払い"
   イベント："1P：所持金 +100G" "1P：ダイス 4を一つ3に変更"
-  スタートマス："1P:スタートマスに止まったため所持金 +100G"
+  スタートマス："1P:スタートマス 所持金 +100G"
   */
   logCount++;
   if(logCount >= 20){
@@ -7619,7 +7626,7 @@ function createAgreePop(game){
 
   var yes = new enchant.Sprite(123, 50);
   yes.image = game.assets['yes.png'];
-  yes.x = game.width/2-123/2;
+  yes.x = 567;
   yes.y = 408;
 
   yes.addEventListener('touchstart', function(){
