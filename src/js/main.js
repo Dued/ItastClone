@@ -11,8 +11,7 @@ enchant();
 var state = {
   INIT:0,
   DICE:1,
-  GAME:2,
-  END:3
+  GAME:2
 };
 
 var proc = {
@@ -30,7 +29,7 @@ var selectFlag = null;
 
 window.onload = function(){
     var game = new enchant.Core(1024, 768);
-    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png','diceBG.png','shuf.png','done.png','bg.png','board.png','yes.png','no.png','1.png','2.png','3.png','4.png','5.png','6.png');
+    game.preload('start.png','title.png','gridStruct.png','gridEvent.png','gridStart.png','p1.png','p2.png','p1info.png','p2info.png','log.png','diceBG.png','shuf.png','done.png','bg.png','board.png','yes.png','no.png','1.png','2.png','3.png','4.png','5.png','6.png','endBG.png');
 
     game.onload = function(){
 	     var title = makeTitle(game);
@@ -151,15 +150,6 @@ function makeMain(game)
     mainScene.addChild(logLabel);
     mainScene.addChild(boardLabel);
 
-    //forDebag
-    /*
-    mainScene.addEventListener('touchstart', function(){
-      board.p1.moveForward(1);
-      //board.p2.moveForward(2);
-      movement = 1;
-    });
-    */
-
     mainScene.addEventListener('enterframe', function(){
       //frame sequence
       if(game.input.z){
@@ -240,7 +230,7 @@ function makeMain(game)
               case 'Start':
                 //スタートマスのとき
                 var money_table=[200,300,500];
-                var rand_num=Math.round(Math.random()*3);
+                var rand_num=Math.floor(Math.random()*3);
                 p.money+=money_table[rand_num];
                 infoUpdate();
                 logUpdate(pNum,"スタートマス 所持金 +"+money_table[rand_num]+"G");
@@ -249,11 +239,17 @@ function makeMain(game)
                 break;
             }
 
+            //勝敗判定
+            if(p.money <= 0){
+              game.pushScene(createEndPop(game, destNum));
+            }else if(dest_p.money <= 0){
+              game.pushScene(createEndPop(game, pNum));
+            }
+
+            //ターン移行
             turn = (turn+1)%2;
           }
         }
-      }else if(gameFlag == state.END){
-
       }
     });
 
@@ -477,4 +473,25 @@ function createAgreePop(game){
   agree.addChild(yes);
 
   return agree;
+}
+
+function createEndPop(game, win){
+  var endScene = new enchant.Scene();
+
+  var bg = new enchant.Sprite(1024, 768);
+  bg.image = game.assets['endBG.png'];
+  bg.x = 0;
+  bg.y = 0;
+
+  var label = new enchant.Label(win+"Pの勝ち！");
+  label.x = game.width/2-200;
+  label.y = game.height/2;
+  label.width = 1024;
+  label.font = "60px sans-serif";
+  label.color = "#EEDFDF";
+
+  endScene.addChild(bg);
+  endScene.addChild(label);
+
+  return endScene;
 }
