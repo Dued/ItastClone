@@ -35,15 +35,6 @@ window.onload = function(){
 	     var title = makeTitle(game);
 	     game.rootScene.addChild(title);
     };
-
-    game.keybind('Z'.charCodeAt(), 'z');
-    game.keybind('1'.charCodeAt(), 'q');
-    game.keybind('2'.charCodeAt(), 'w');
-    game.keybind('3'.charCodeAt(), 'e');
-    game.keybind('4'.charCodeAt(), 'r');
-    game.keybind('5'.charCodeAt(), 't');
-    game.keybind('6'.charCodeAt(), 'y');
-
     game.start();
 };
 
@@ -152,28 +143,24 @@ function makeMain(game)
 
     mainScene.addEventListener('enterframe', function(){
       //frame sequence
-      if(game.input.z){
-        if(turn == 0){
-          board.p1.moveForward(3);
-        }else{
-          board.p2.moveForward(8);
-        }
-        movement = 1;
-      }
       if(gameFlag == state.GAME){
-        if(movement == 1){
-          var p,dest_p,pNum,destNum;
-          if(turn == 0){
-            p = board.p1;
-            dest_p = board.p2;
-            pNum = 1;
-            destNum = 2;
-          }else{
-            p = board.p2;
-            dest_p = board.p1;
-            pNum = 2;
-            destNum = 1;
-          }
+        var p,dest_p,pNum,destNum;
+        if(turn == 0){
+          p = board.p1;
+          dest_p = board.p2;
+          pNum = 1;
+          destNum = 2;
+        }else{
+          p = board.p2;
+          dest_p = board.p1;
+          pNum = 2;
+          destNum = 1;
+        }
+
+        if(movement == 0){
+          boardUpdate(pNum+'P','');
+          game.pushScene(createDicePop(game,p));
+        }else if(movement == 1){
           var now = p.nowGrid;
           var grid = board.searchForIndex(now);
           if(grid){
@@ -399,6 +386,71 @@ function buildingUpdate(index){
 
 function boardUpdate(player, info, message=""){
   boardLabel.text = player+"のターン<br>"+info+"<br><br>"+message;
+}
+
+function createDicePop(game, p){
+  var diceSelect = new enchant.Scene();
+
+  var diceimg = new Array(6);
+  for(var i=0; i<6; i++){
+    diceimg[i] = new enchant.Sprite(96,96);
+    diceimg[i].image = game.assets[(i+1)+'.png'];
+    diceimg[i].scaleX = 0.5;
+    diceimg[i].scaleY = 0.5;
+    diceimg[i].x = 442+(48+22)*i;
+    diceimg[i].y = 408;
+  }
+
+  diceimg[0].addEventListener('touchstart', function(){
+    p.dice[0] -= 1;
+    p.moveForward(1);
+    movement = 1;
+    infoUpdate();
+    game.popScene();
+  });
+  diceimg[1].addEventListener('touchstart', function(){
+    p.dice[1] -= 1;
+    p.moveForward(2);
+    movement = 1;
+    infoUpdate();
+    game.popScene();
+  });
+  diceimg[2].addEventListener('touchstart', function(){
+    p.dice[2] -= 1;
+    p.moveForward(3);
+    movement = 1;
+    infoUpdate();
+    game.popScene();
+  });
+  diceimg[3].addEventListener('touchstart', function(){
+    p.dice[3] -= 1;
+    p.moveForward(4);
+    movement = 1;
+    infoUpdate();
+    game.popScene();
+  });
+  diceimg[4].addEventListener('touchstart', function(){
+    p.dice[4] -= 1;
+    p.moveForward(5);
+    movement = 1;
+    infoUpdate();
+    game.popScene();
+  });
+  diceimg[5].addEventListener('touchstart', function(){
+    p.dice[5] -= 1;
+    p.moveForward(6);
+    movement = 1;
+    infoUpdate();
+    game.popScene();
+  });
+
+  for(var i=0; i<6; i++){
+    if(p.dice[i] > 0){
+      diceSelect.addChild(diceimg[i]);
+    }
+  }
+
+  return diceSelect;
 }
 
 function createSelectPop(game, flag, grid, p){
