@@ -1,6 +1,3 @@
-/*
-  coding:utf-8
-*/
 import 'enchant.js';
 
 export default class Player extends enchant.Sprite {
@@ -10,10 +7,10 @@ export default class Player extends enchant.Sprite {
   }
 
   initialize(game, pnum){
-    super.initialize(36, 36);
+    super.initialize(39, 39);
     this.x = 256;
     this.y = 0;
-    //draw
+
     if(pnum == 1){
       this.xoffset = 5;
       this.yoffset = 5;
@@ -28,7 +25,7 @@ export default class Player extends enchant.Sprite {
     this.x += this.xoffset;
     this.y += this.yoffset;
 
-    //fields
+    //プレイヤーが持つもの：ダイス，所持金，物件，今いるマス(index値)
     this.dice = [];
     this.money = 1000;
     this.structs = [];
@@ -36,10 +33,13 @@ export default class Player extends enchant.Sprite {
   }
 
   hasIndex(){
+    //プレイヤーのindex値を返すメソッド
     return this.index;
   }
 
   moveForward(num){
+    //numマス進める処理
+    //Boardから次のマスを検索して，そこに座標を移動，今いるマスを更新する
     var next = (this.nowGrid + num) % 24;
     for(let child of this.parentNode.childNodes){
       var ind = child.hasIndex();
@@ -54,10 +54,12 @@ export default class Player extends enchant.Sprite {
   }
 
   getDice(){
+    //ダイスのリストに対するゲッター
     return this.dice;
   }
 
   getMoney(){
+    //所持金に対するゲッター
     return this.money;
   }
 }

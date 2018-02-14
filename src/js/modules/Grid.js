@@ -1,6 +1,3 @@
-/*
-  coding:utf-8
-*/
 import 'enchant.js';
 import Building from './building.js';
 import Event from './event.js';
@@ -20,6 +17,7 @@ export default class Grid extends enchant.Sprite {
     this.index = index;
     this.label = null;
 
+    //vの値によって物件かイベントかをstructに格納する
     if(v == 1){
       var price = Math.floor(Math.random()*3+1);
       price *= 100;
@@ -36,6 +34,7 @@ export default class Grid extends enchant.Sprite {
   }
 
   hasStructOrEvent(){
+    //マスが物件かイベントかスタートかを返すメソッド
     switch(this.variaty){
       case 0: return 'Start';
       case 1: return 'Struct';
@@ -44,6 +43,7 @@ export default class Grid extends enchant.Sprite {
   }
 
   hasIndex(){
+    //マスのindex値を返すメソッド
     return this.index;
   }
 }

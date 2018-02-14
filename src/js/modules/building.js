@@ -5,7 +5,7 @@ export default class Building {
 
   //物件の初期化
   initialize(buying_price){
-    this.lease=buying_price/2;//使用料
+    this.lease=buying_price;//使用料
     this.price=buying_price;//買値
     this.owner=0;//持主,初期値は0
   }

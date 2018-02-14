@@ -1,30 +1,34 @@
-/*
-  coding:utf-8
-*/
-
 import 'enchant.js';
 import Board from './modules/Board';
 import Grid from './modules/Grid';
 
 enchant();
 
+//ゲームの状態を表す列挙型
 var state = {
   INIT:0,
   DICE:1,
   GAME:2
 };
 
+//移動したマスの物件に所有者がいるかいないか
 var proc = {
   NONOWN:0,
   OWN:1
 };
 
+//状態を管理するフラグ
 var gameFlag = state.INIT;
+//メイン画面に表示する要素たち
 var board;
 var boardLabel,logLabel,p1infoLabel,p2infoLabel;
+//ターンと，移動したかどうかのフラグ
 var turn = 0, movement = 0;
+//ログを管理するための変数
 var logData = [], logCount = 0;
+//物件に表示するラベル
 var buildingLabel = {};
+//はい，いいえを選択した時のフラグ
 var selectFlag = null;
 
 window.onload = function(){
@@ -38,9 +42,8 @@ window.onload = function(){
     game.start();
 };
 
-function makeTitle(game)
-{
-    //title definition
+function makeTitle(game){
+    //タイトル画面を作るための関数
     // get assets image and make title parts
     var title = new enchant.Scene();
     var titleLabel = new enchant.Sprite(277,24);
@@ -69,10 +72,11 @@ function makeTitle(game)
 
 function makeMain(game)
 {
-    //mainScene definition
+    //メイン画面を作るための関数
     var mainScene = new enchant.Scene();
     mainScene.backgroundColor = "#FFFFFF";
 
+    //背景などの画像を定義しておく
     var background = new enchant.Sprite(1024, 768);
     background.image = game.assets['bg.png'];
     background.x = 0;
@@ -85,12 +89,14 @@ function makeMain(game)
     boardBG.y = 0;
     mainScene.addChild(boardBG);
 
+    //ゲームボードを作成する
     board = new Board(game, buildingLabel);
     mainScene.addChild(board);
     for(let v in buildingLabel){
       mainScene.addChild(buildingLabel[v]);
     }
 
+    //プレイヤー情報やログの背景とラベルを定義する
     var p1info = new enchant.Sprite(1024, 768);
     p1info.image = game.assets['p1info.png'];
     p1info.x = 0;
@@ -142,8 +148,9 @@ function makeMain(game)
     mainScene.addChild(boardLabel);
 
     mainScene.addEventListener('enterframe', function(){
-      //frame sequence
+      //フレーム処理，ここが実質メインのゲームループ
       if(gameFlag == state.GAME){
+        //ターンを見て，対応するプレイヤーとその番号を取得しておく
         var p,dest_p,pNum,destNum;
         if(turn == 0){
           p = board.p1;
@@ -158,28 +165,36 @@ function makeMain(game)
         }
 
         if(movement == 0){
+          //移動する前の処理
+          //どっちのターンか表示し，持っているサイコロの選択肢を表示させる
           boardUpdate(pNum+'P','');
           game.pushScene(createDicePop(game,p));
         }else if(movement == 1){
+          //移動したあとの処理
+          //プレイヤーから今現在のマスを取得する
           var now = p.nowGrid;
           var grid = board.searchForIndex(now);
           if(grid){
+            //マスの取得に成功したら，種類を見て処理する
             switch(grid.hasStructOrEvent()){
               case 'Struct':
                 //物件マスのとき
                 var owner = grid.struct.owner_search();
                 if(owner == null){
                   //持ち主なし
+                  //購入するかどうかの選択肢を出す
                   boardUpdate(pNum+'P','空き物件 '+grid.struct.price+'G', "購入しますか？");
                   game.pushScene(createSelectPop(game, proc.NONOWN, grid, p));
                 }else{
                   //持ち主あり
                   if(owner == p.index){
                     //持ち主が自分
+                    //アップグレードするかどうかの選択肢を出す
                     boardUpdate(pNum+'P',pNum+'Pの物件 ', "アップグレードしますか？<br>支払い："+grid.struct.price+'G，使用料：'+grid.struct.lease+'G→'+(grid.struct.lease*5)+'G');
                     game.pushScene(createSelectPop(game, proc.OWN, grid, p));
                   }else{
                     //持ち主が相手
+                    //使用料を支払って，確認のボタンを出す
                     grid.struct.pay(p, dest_p);
                     infoUpdate();
                     logUpdate(pNum,now+"番の物件で"+grid.struct.lease+"G支払い");
@@ -190,12 +205,14 @@ function makeMain(game)
                 break;
               case 'Event':
                 //イベントマスのとき
+                //ダイスの目を変更するための数字を選んで，イベントを実行する
                 var before,after;
                 do{
                   before = Math.floor(Math.random()*6);
                   after = Math.floor(Math.random()*6);
                 }while(before == after || p.dice[before]<=0);
                 var ret = grid.struct.event_process(p, before, after);
+                //各種情報を更新し，確認のボタンを出す
                 infoUpdate();
                 switch (grid.struct.event_num) {
                   case 1:
@@ -216,6 +233,7 @@ function makeMain(game)
                 break;
               case 'Start':
                 //スタートマスのとき
+                //ランダムにお金を増やして情報更新，確認のボタンを出す
                 var money_table=[200,300,500];
                 var rand_num=Math.floor(Math.random()*3);
                 p.money+=money_table[rand_num];
@@ -227,10 +245,22 @@ function makeMain(game)
             }
 
             //勝敗判定
+            //どちらかの所持金が0以下になったとき終了
             if(p.money <= 0){
               game.pushScene(createEndPop(game, destNum));
             }else if(dest_p.money <= 0){
               game.pushScene(createEndPop(game, pNum));
+            }
+            //2Pのダイスがなくなったとき，所持金の多いほうが勝利
+            //同じだった場合は引き分けになる
+            if(sum(board.p2.dice) == 0){
+              if(p.money > dest_p.money){
+                game.pushScene(createEndPop(game, pNum));
+              }else if(p.money < dest_p.money){
+                game.pushScene(createEndPop(game, destNum));
+              }else{
+                game.pushScene(createEndPop(game, 'draw'));
+              }
             }
 
             //ターン移行
@@ -243,7 +273,15 @@ function makeMain(game)
     return mainScene;
 }
 
+function sum(arr) {
+  //勝敗判定用の配列合計値を求める処理
+  return arr.reduce(function(prev, current, i, arr) {
+    return prev+current;
+  });
+};
+
 function makeDiceScene(game){
+  //最初にダイスを振る画面を作る関数
   var diceScene = new enchant.Scene();
 
   var bg = new enchant.Sprite(670, 520);
@@ -283,6 +321,7 @@ function makeDiceScene(game){
   }
 
   shuf.addEventListener('touchstart', function(){
+    //振るボタンをおした時の処理
     //dice1:1P dice2:2P
     var dice1 = randomDice();
     var dice2 = randomDice();
@@ -296,6 +335,7 @@ function makeDiceScene(game){
     done.x = shuf.x;
     done.y = shuf.y;
     done.addEventListener('touchstart', function(){
+      //決定ボタンを押した時の処理
       //playerに反映
       board.p1.dice = dice1;
       board.p2.dice = dice2;
@@ -311,12 +351,13 @@ function makeDiceScene(game){
 
 function randomDice(){
   //サイコロを20個ランダムに振る処理
-  var tmp = new Array(20);
-  for(var i=0; i<20; i++){
+  var n = 20;
+  var tmp = new Array(n);
+  for(var i=0; i<n; i++){
     tmp[i] = Math.floor(Math.random()*6);
   }
   var dice = [0,0,0,0,0,0];
-  for(i=0; i<20; i++){
+  for(i=0; i<n; i++){
     dice[tmp[i]]++;
   }
 
@@ -324,6 +365,8 @@ function randomDice(){
 }
 
 function infoUpdate(){
+  //各プレイヤー情報を更新する関数
+  //ダイスの数と所持金を取得してラベルに反映する
   var p1dices = board.p1.getDice();
   var p2dices = board.p2.getDice();
 
@@ -341,6 +384,7 @@ function infoUpdate(){
 }
 
 function logUpdate(num, str){
+  //ログを更新する関数
   /*
   ログの形式：
   物件購入："1P:n番の物件を購入"
@@ -351,6 +395,7 @@ function logUpdate(num, str){
   */
   logCount++;
   if(logCount >= 20){
+    //ログの数が20を超えたら，古いものを削除する
     var trush = logData.shift();
   }
   logData.push(num+"P："+str);
@@ -359,6 +404,7 @@ function logUpdate(num, str){
 }
 
 function buildingUpdate(index){
+  //物件についているラベルを更新する関数
   if(!Object.keys(buildingLabel).includes(''+index)){
     return;
   }
@@ -385,10 +431,12 @@ function buildingUpdate(index){
 }
 
 function boardUpdate(player, info, message=""){
+  //ボード内の表示を更新する関数
   boardLabel.text = player+"のターン<br>"+info+"<br><br>"+message;
 }
 
 function createDicePop(game, p){
+  //ダイスを選ぶ時の選択肢を作る処理
   var diceSelect = new enchant.Scene();
 
   var diceimg = new Array(6);
@@ -401,6 +449,8 @@ function createDicePop(game, p){
     diceimg[i].y = 408;
   }
 
+  //ダイスを選んだ時の処理
+  //forループで定義すると正しく動作しないので展開した
   diceimg[0].addEventListener('touchstart', function(){
     p.dice[0] -= 1;
     p.moveForward(1);
@@ -454,6 +504,7 @@ function createDicePop(game, p){
 }
 
 function createSelectPop(game, flag, grid, p){
+  //はい，いいえの選択肢を作る関数
   var selection = new enchant.Scene();
 
   var yes = new enchant.Sprite(123, 50);
@@ -483,6 +534,7 @@ function createSelectPop(game, flag, grid, p){
 }
 
 function processYN(flag, grid, player){
+  //止まったマスが物件だったとき，はい，いいえを選択した時の処理をする関数
   var playerNum = turn+1;
   if(flag == proc.NONOWN){
     //空き物件のときの処理 はい→購入 いいえ→何もしない
@@ -508,7 +560,7 @@ function processYN(flag, grid, player){
 }
 
 function createAgreePop(game){
-  //イベント後などに「はい」だけを表示させるScene
+  //イベント後などに「はい」だけを表示させる関数
   var agree = new enchant.Scene();
 
   var yes = new enchant.Sprite(123, 50);
@@ -528,6 +580,7 @@ function createAgreePop(game){
 }
 
 function createEndPop(game, win){
+  //ゲームが終了した時の表示を作る関数
   var endScene = new enchant.Scene();
 
   var bg = new enchant.Sprite(1024, 768);
@@ -535,7 +588,12 @@ function createEndPop(game, win){
   bg.x = 0;
   bg.y = 0;
 
-  var label = new enchant.Label(win+"Pの勝ち！");
+  var label = new enchant.Label();
+  if(win == 'draw'){
+    label.text = "引き分け！";
+  }else{
+    label.text = win+"Pの勝ち！";
+  }
   label.x = game.width/2-200;
   label.y = game.height/2;
   label.width = 1024;
